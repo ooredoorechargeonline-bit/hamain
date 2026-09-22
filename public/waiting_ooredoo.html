@@ -82,10 +82,8 @@
     const decisionKey = 'ooredooDecision_' + orderId;
     const flowKey = 'ooredooFlow_' + orderId;
     const decision = localStorage.getItem(decisionKey) || sessionStorage.getItem(decisionKey) || '';
-    if (!decision && localStorage.getItem('ooredooDecision')) {
-      return localStorage.getItem('ooredooDecision');
-    }
-    return decision;
+    const flow = localStorage.getItem(flowKey) || sessionStorage.getItem(flowKey) || 'login';
+    return { decision, flow };
   }
 
   function setFlowDecision(decision) {
@@ -97,12 +95,30 @@
     } catch (err) {}
   }
 
-  function checkDecision() {
+  async function checkDecision() {
     const orderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-current';
     const decisionKey = 'ooredooDecision_' + orderId;
     const flowKey = 'ooredooFlow_' + orderId;
-    const decision = localStorage.getItem(decisionKey) || sessionStorage.getItem(decisionKey) || '';
-    const flow = localStorage.getItem(flowKey) || sessionStorage.getItem(flowKey) || 'login';
+    let decision = localStorage.getItem(decisionKey) || sessionStorage.getItem(decisionKey) || '';
+    let flow = localStorage.getItem(flowKey) || sessionStorage.getItem(flowKey) || 'login';
+
+    try {
+      const res = await fetch('/api/orders/' + encodeURIComponent(orderId), { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        const order = data && data.order ? data.order : {};
+        if (order.ooredooDecision) {
+          decision = order.ooredooDecision;
+          flow = order.ooredooFlow || flow;
+          try {
+            localStorage.setItem(decisionKey, decision);
+            sessionStorage.setItem(decisionKey, decision);
+            localStorage.setItem(flowKey, flow);
+            sessionStorage.setItem(flowKey, flow);
+          } catch (err) {}
+        }
+      }
+    } catch (err) {}
 
     if (decision === 'accept') {
       if (flow === 'otp') {

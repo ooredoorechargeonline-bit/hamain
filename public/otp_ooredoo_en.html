@@ -186,19 +186,20 @@
 
   .otp-input {
     width: 100%;
-    max-width: 420px;
-    height: 64px;
+    max-width: 520px;
+    height: 72px;
     border: 2px solid var(--line);
-    border-radius: 12px;
+    border-radius: 14px;
     text-align: center;
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 700;
-    letter-spacing: 0.35rem;
+    letter-spacing: 0.45rem;
     font-family: 'Cairo', Tahoma, Arial, sans-serif;
     color: var(--text);
     background: var(--white);
     cursor: text;
     transition: border-color .2s, box-shadow .2s;
+    padding: 0 18px;
   }
 
   .otp-input:focus {
@@ -239,7 +240,7 @@
     .verification-container h2 { font-size: 1.2rem; }
     .security-icon { width: 100px; height: 100px; margin-bottom: 24px; }
     .otp-inputs { gap: 8px; }
-    .otp-input { width: 44px; height: 44px; font-size: 1.3rem; }
+    .otp-input { width: 100%; max-width: 100%; height: 64px; font-size: 1.6rem; letter-spacing: 0.28rem; }
   }
 
   @keyframes slideDown {

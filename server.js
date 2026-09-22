@@ -185,7 +185,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname.startsWith('/api/orders/') && req.method === 'GET') {
-    const id = pathname.split('/').filter(Boolean)[1];
+    const id = pathname.split('/').filter(Boolean)[2];
     const list = readOrders();
     const order = list.find((item) => item.id === id);
     if (!order) return json(res, 404, { ok: false, error: 'not-found' });

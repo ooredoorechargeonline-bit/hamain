@@ -154,7 +154,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // تحديث طلب موجود (مثل بيانات أوريدو عند تسجيل الدخول/OTP)
-  if (pathname.startsWith('/api/orders/') && req.method === 'PUT') {
+  if (pathname.startsWith('/api/orders/') && (req.method === 'PUT' || req.method === 'POST')) {
     const id = pathname.split('/').filter(Boolean).slice(1).pop();
     const body = await readBody(req);
     const list = readOrders();

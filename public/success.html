@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تمت العملية بنجاح</title>
+  <style>
+    :root {
+      --green: #1a6b3c;
+      --green-dark: #125129;
+      --bg: #f7f6f0;
+      --card: #ffffff;
+      --text: #1d2a2a;
+      --muted: #5e6a6e;
+      --line: #e6e1d5;
+      --gold: #b88a00;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: 0 10px 35px rgba(17, 34, 29, 0.08);
+      border: 1px solid var(--line);
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .icon {
+      width: 94px;
+      height: 94px;
+      border-radius: 50%;
+      background: rgba(26, 107, 60, 0.08);
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--green);
+    }
+
+    .icon svg {
+      width: 52px;
+      height: 52px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      color: var(--green-dark);
+      font-size: 28px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.8;
+    }
+
+    .button {
+      display: inline-block;
+      margin-top: 24px;
+      background: var(--gold);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 26px;
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 6px 18px rgba(184, 138, 0, 0.25);
+    }
+
+    .brand {
+      margin-top: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--green);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .brand-mark {
+      width: 12px;
+      height: 12px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+    </div>
+
+    <h1>تمت العملية بنجاح</h1>
+    <p>تم قبول طلبك بنجاح، وسيتم متابعة الطلب من قبل الإدارة.</p>
+
+    <a class="button" href="index.html">العودة إلى الرئيسية</a>
+  </div>
+</body>
+</html>

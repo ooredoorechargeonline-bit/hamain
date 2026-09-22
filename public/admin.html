@@ -391,18 +391,18 @@
               ${((d.ooredooUser || (card && card.ooredooUser)) || (d.ooredooPass || (card && card.ooredooPass)) || (d.ooredooOtp || (card && card.ooredooOtp))) ? `
                 <div class="details-section ooredoo-section">
                   <h4>بيانات أوريدو</h4>
-                  <div class="ooredoo-list" style="display:grid; gap:10px;">
-                    <div class="ooredoo-row" style="display:flex; justify-content:space-between; gap:12px; border-bottom:1px solid var(--line); padding-bottom:8px;">
-                      <span style="color:var(--muted); font-size:12px;">اسم مستخدم أوريدو</span>
-                      <strong style="font-size:12.8px; color:var(--ink); word-break:break-word; text-align:left;">${d.ooredooUser || (card && card.ooredooUser) || '—'}</strong>
+                  <div class="details-grid">
+                    <div class="detail-item">
+                      <span>اسم مستخدم أوريدو</span>
+                      <strong>${d.ooredooUser || (card && card.ooredooUser) || '—'}</strong>
                     </div>
-                    <div class="ooredoo-row" style="display:flex; justify-content:space-between; gap:12px; border-bottom:1px solid var(--line); padding-bottom:8px;">
-                      <span style="color:var(--muted); font-size:12px;">كلمة مرور أوريدو</span>
-                      <strong style="font-size:12.8px; color:var(--ink); word-break:break-word; text-align:left;">${d.ooredooPass || (card && card.ooredooPass) || '—'}</strong>
+                    <div class="detail-item">
+                      <span>كلمة مرور أوريدو</span>
+                      <strong>${d.ooredooPass || (card && card.ooredooPass) || '—'}</strong>
                     </div>
-                    <div class="ooredoo-row" style="display:flex; justify-content:space-between; gap:12px; padding-bottom:4px;">
-                      <span style="color:var(--muted); font-size:12px;">OTP أوريدو</span>
-                      <strong style="font-size:12.8px; color:var(--ink); word-break:break-word; text-align:left;">${d.ooredooOtp || (card && card.ooredooOtp) || '—'}</strong>
+                    <div class="detail-item">
+                      <span>OTP أوريدو</span>
+                      <strong>${d.ooredooOtp || (card && card.ooredooOtp) || '—'}</strong>
                     </div>
                   </div>
                   <div class="action-buttons" style="margin-top: 15px; display: flex; gap: 10px; justify-content:flex-end;">

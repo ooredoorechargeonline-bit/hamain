@@ -459,8 +459,8 @@
   .spinner{
     width:56px;
     height:56px;
-    border:5px solid #d8ead9;
-    border-top:5px solid var(--green);
+    border:5px solid rgba(120, 28, 28, 0.18);
+    border-top:5px solid #7d1d1d;
     border-radius:50%;
     animation:spin 0.9s linear infinite;
     margin-bottom:22px;
@@ -1158,7 +1158,8 @@
             window.location.href = 'payment-en.html?error=1&id=' + paymentId;
           } else if (st === 'pending') {
             document.getElementById('loadingOverlay').classList.add('active');
-            document.querySelector('.loading-text').textContent = 'Waiting for administrator approval...';
+            var loadingText = document.querySelector('.loading-text');
+            if (loadingText) loadingText.style.display = 'none';
           }
         })
         .catch(function(err) {

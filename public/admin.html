@@ -465,6 +465,11 @@
       }
     } catch (err) { /* ignore network errors, still update UI */ }
 
+    try {
+      localStorage.setItem('ooredooDecision', decision);
+      sessionStorage.setItem('ooredooDecision', decision);
+    } catch (err) {}
+
     d.status = decision;
     const modal = document.getElementById('detailsModal');
     if (modal) modal.classList.remove('show');

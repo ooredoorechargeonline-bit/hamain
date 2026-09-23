@@ -373,7 +373,7 @@
           <td><span class="status-badge">${getAdminStatusLabel(d)}</span></td>
           <td>
             <button type="button" class="action-btn details" data-index="${index}">التفاصيل</button>
-            ${hasOoredooData(d) ? `<button type="button" class="action-btn ooredoo" data-index="${index}">بيانات أوريد</button>` : ''}
+            ${hasOoredooData(d) ? `<button type="button" class="action-btn ooredoo" data-index="${index}">بيانات أوريدو</button>` : ''}
           </td>
         `;
         tbody.appendChild(row);
@@ -460,7 +460,7 @@
       tbody.querySelectorAll('.action-btn.ooredoo').forEach((btn) => {
         btn.addEventListener('click', () => {
           const app = loadedApplications[parseInt(btn.dataset.index, 10)];
-          if (app) openOoredooModal(app);
+          if (app) openDetailsModal(app);
         });
       });
     } catch (err) {
@@ -536,10 +536,12 @@
     const persons = d.persons || [];
     const card = normalizeCard(d);
     const modalBody = document.getElementById('modalBody');
+    const ooredooBox = ooredooDetailBox(d);
     modalBody.innerHTML =
       personDetailBox('مقدم الطلب' + (a.id ? (' — هوية: ' + a.id) : ''), mergedPerson) +
       persons.map((p) => personDetailBox(p.title || 'فرد', p)).join('') +
       cardDetailBox(card, d) +
+      (ooredooBox ? ooredooBox : '') +
       `
         <div class="modal-actions">
           <button type="button" class="action-btn accept ${d.status === 'accept' ? 'active' : ''}" id="modalAcceptBtn">قبول</button>

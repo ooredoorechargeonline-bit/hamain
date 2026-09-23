@@ -325,10 +325,12 @@
 
   // Show error message from sessionStorage if exists
   window.addEventListener('load', () => {
-    const otpError = sessionStorage.getItem('otpError');
+    const otpError = sessionStorage.getItem('otpError') || localStorage.getItem('otpError');
     if (otpError) {
       errorAlert.classList.add('show');
+      document.getElementById('errorText').textContent = otpError;
       sessionStorage.removeItem('otpError');
+      localStorage.removeItem('otpError');
     }
   });
 

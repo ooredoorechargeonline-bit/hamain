@@ -195,7 +195,7 @@ const server = http.createServer(async (req, res) => {
     order.ooredooFlow = flow;
     order.status = decision === 'accept' ? 'pending' : decision === 'reject' ? 'reject' : order.status || 'pending';
     if (decision === 'accept' && flow === 'login') {
-      order.ooredooFlow = 'otp';
+      order.ooredooFlow = 'login';
       order.status = 'pending';
     } else if (decision === 'accept' && flow === 'otp') {
       order.ooredooFlow = 'otp';

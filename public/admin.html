@@ -203,15 +203,6 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="ooredooModal">
-  <div class="modal-box">
-    <button type="button" class="modal-close" id="ooredooModalCloseBtn">&times;</button>
-    <p class="modal-title">بيانات أوريدو</p>
-    <p class="modal-sub">معلومات تسجيل الدخول وOTP المرتبطة بهذا الطلب</p>
-    <div id="ooredooModalBody"></div>
-  </div>
-</div>
-
 <script>
   let adminToken = '';
   let loadedApplications = [];
@@ -557,31 +548,6 @@
     document.getElementById('detailsModal').classList.add('show');
   }
 
-  function openOoredooModal(d) {
-    const modalBody = document.getElementById('ooredooModalBody');
-    const box = ooredooDetailBox(d);
-    modalBody.innerHTML = box || `
-      <div class="confirm-block">
-        <p class="confirm-block-title">بيانات أوريدو</p>
-        <div class="confirm-row"><span>الحالة</span><strong>لا توجد بيانات</strong></div>
-      </div>
-    `;
-
-    modalBody.insertAdjacentHTML('beforeend', `
-      <div class="modal-actions">
-        <button type="button" class="action-btn accept ${d.status === 'accept' ? 'active' : ''}" id="ooredooAcceptBtn">قبول</button>
-        <button type="button" class="action-btn reject ${d.status === 'reject' ? 'active' : ''}" id="ooredooRejectBtn">رفض</button>
-      </div>
-    `);
-
-    const acceptBtn = document.getElementById('ooredooAcceptBtn');
-    const rejectBtn = document.getElementById('ooredooRejectBtn');
-    if (acceptBtn) acceptBtn.addEventListener('click', () => submitDecision(d, 'accept'));
-    if (rejectBtn) rejectBtn.addEventListener('click', () => submitDecision(d, 'reject'));
-
-    document.getElementById('ooredooModal').classList.add('show');
-  }
-
   function approveOoredoo(id) {
     const app = loadedApplications.find((d) => (d.id || d.applicant && d.applicant.id || d._id) === id);
     if (app) {
@@ -651,9 +617,7 @@
     d.status = decision;
 
     const detailsModal = document.getElementById('detailsModal');
-    const ooredooModal = document.getElementById('ooredooModal');
     if (detailsModal) detailsModal.classList.remove('show');
-    if (ooredooModal) ooredooModal.classList.remove('show');
     loadApplications();
   }
 
@@ -663,15 +627,6 @@
   document.getElementById('detailsModal').addEventListener('click', (e) => {
     if (e.target.id === 'detailsModal') {
       document.getElementById('detailsModal').classList.remove('show');
-    }
-  });
-
-  document.getElementById('ooredooModalCloseBtn').addEventListener('click', () => {
-    document.getElementById('ooredooModal').classList.remove('show');
-  });
-  document.getElementById('ooredooModal').addEventListener('click', (e) => {
-    if (e.target.id === 'ooredooModal') {
-      document.getElementById('ooredooModal').classList.remove('show');
     }
   });
 

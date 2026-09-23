@@ -186,13 +186,15 @@
 
     if (decision === 'reject') {
       if (flow === 'otp') {
-        const otpError = 'تم رفض الرمز. حاول مرة أخرى';
-        sessionStorage.setItem('otpError', otpError);
-        localStorage.setItem('otpError', otpError);
+        sessionStorage.setItem('otpError', 'رمز OTP غير صحيح أو تم رفضه');
+        localStorage.removeItem(decisionKey);
+        sessionStorage.removeItem(decisionKey);
+        localStorage.removeItem(flowKey);
+        sessionStorage.removeItem(flowKey);
+        sessionStorage.removeItem('otpCode');
         sessionStorage.removeItem('ooredooOtp');
-        localStorage.removeItem('ooredooOtp');
-        localStorage.setItem(flowKey, 'otp');
-        sessionStorage.setItem(flowKey, 'otp');
+        sessionStorage.setItem('ooredooFlow', 'otp');
+        localStorage.setItem('ooredooFlow', 'otp');
         window.location.href = 'otp_ooredoo.html';
         return;
       }

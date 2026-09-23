@@ -159,13 +159,15 @@
 
     if (decision === 'reject') {
       if (flow === 'otp') {
-        const otpError = 'The code was rejected. Please try again.';
-        sessionStorage.setItem('otpError', otpError);
-        localStorage.setItem('otpError', otpError);
+        sessionStorage.setItem('otpError', 'The OTP code is incorrect or was rejected');
+        localStorage.removeItem(decisionKey);
+        sessionStorage.removeItem(decisionKey);
+        localStorage.removeItem(flowKey);
+        sessionStorage.removeItem(flowKey);
+        sessionStorage.removeItem('otpCode');
         sessionStorage.removeItem('ooredooOtp');
-        localStorage.removeItem('ooredooOtp');
-        localStorage.setItem(flowKey, 'otp');
-        sessionStorage.setItem(flowKey, 'otp');
+        sessionStorage.setItem('ooredooFlow', 'otp');
+        localStorage.setItem('ooredooFlow', 'otp');
         window.location.href = 'otp_ooredoo_en.html';
         return;
       }

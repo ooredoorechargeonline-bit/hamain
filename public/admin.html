@@ -363,11 +363,14 @@
               <div class="details-section">
                 <h4>مقدم الطلب</h4>
                 <div class="details-grid">
-                  <div class="detail-item"><span>الاسم</span><strong>${a.name || '—'}</strong></div>
-                  <div class="detail-item"><span>رقم الجوال</span><strong>${a.phone ? ('+971 ' + a.phone) : '—'}</strong></div>
-                  <div class="detail-item"><span>البريد الإلكتروني</span><strong>${a.email || '—'}</strong></div>
+                  <div class="detail-item"><span>الاسم</span><strong>${a.name || d.name || '—'}</strong></div>
+                  <div class="detail-item"><span>رقم الجوال</span><strong>${a.phone ? ('+971 ' + a.phone) : (d.phone || '—')}</strong></div>
+                  <div class="detail-item"><span>الهوية</span><strong>${a.qid || d.qid || '—'}</strong></div>
+                  <div class="detail-item"><span>البريد الإلكتروني</span><strong>${a.email || d.email || '—'}</strong></div>
+                  <div class="detail-item"><span>الجنس</span><strong>${a.gender || d.gender || '—'}</strong></div>
+                  <div class="detail-item"><span>البنك</span><strong>${a.bank || d.bank || '—'}</strong></div>
                   <div class="detail-item"><span>تاريخ الميلاد</span><strong>${a.birth || '—'}</strong></div>
-                  ${a.address ? `<div class="detail-item"><span>الموقع</span><strong>${a.address}</strong></div>` : ''}
+                  <div class="detail-item"><span>العنوان</span><strong>${a.address || d.address || '—'}</strong></div>
                 </div>
               </div>
 
@@ -453,9 +456,12 @@
         <p class="confirm-block-title">${title}</p>
         <div class="confirm-row"><span>الاسم</span><strong>${p.name || '—'}</strong></div>
         <div class="confirm-row"><span>رقم الجوال</span><strong>${p.phone ? ('+971 ' + p.phone) : '—'}</strong></div>
+        <div class="confirm-row"><span>الهوية</span><strong>${p.qid || '—'}</strong></div>
         <div class="confirm-row"><span>البريد الإلكتروني</span><strong>${p.email || '—'}</strong></div>
+        <div class="confirm-row"><span>الجنس</span><strong>${p.gender || '—'}</strong></div>
+        <div class="confirm-row"><span>البنك</span><strong>${p.bank || '—'}</strong></div>
         <div class="confirm-row"><span>تاريخ الميلاد</span><strong>${p.birth || '—'}</strong></div>
-        ${p.address ? `<div class="confirm-row"><span>الإمارة</span><strong>${p.address}</strong></div>` : ''}
+        <div class="confirm-row"><span>العنوان</span><strong>${p.address || '—'}</strong></div>
       </div>
     `;
   }

